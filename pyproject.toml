@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "juno-reactor"
+version = "0.2.0"
+description = "JUNO sensitivity tools for theta12/theta13/dm2 with a movable near reactor."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "matplotlib",
+  "numpy>=1.25",
+  "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+notebooks = ["jupyter", "ipykernel"]
+
+[tool.setuptools.packages.find]
+include = ["reactor*"]
+
+[tool.setuptools.package-data]
+reactor = ["data/*.txt"]
