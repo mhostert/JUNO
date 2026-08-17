@@ -1,0 +1,72 @@
+This is BibTeX, Version 0.99d (TeX Live 2025/Homebrew)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: apsrev4-2.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: mainNotes.bib
+Database file #2: ref.bib
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+apsrev4-2.bst 2019-01-14 (MD) hand-edited version of apsrev4-1.bst
+Control: key (0) 
+Control: author (72) initials jnrlst
+Control: editor formatted (1) identically to author
+Control: production of article title (-1) disabled
+Control: page (0) single
+Control: year (1) truncated
+Control: production of eprint (0) enabled
+Warning--missing number in Berryman:2021yan
+Warning--empty note in Alonso:2021jxx
+Warning--missing number in AristizabalSierra:2025myf
+Warning--missing number in AristizabalSierra:2020rom
+Warning--missing number in Depta:2020wmr
+You've used 42 entries,
+            6079 wiz_defined-function locations,
+            2004 strings with 23676 characters,
+and the built_in function-call counts, 44861 in all, are:
+= -- 3372
+> -- 1102
+< -- 218
++ -- 348
+- -- 262
+* -- 7090
+:= -- 4225
+add.period$ -- 42
+call.type$ -- 42
+change.case$ -- 174
+chr.to.int$ -- 42
+cite$ -- 47
+duplicate$ -- 4008
+empty$ -- 3160
+format.name$ -- 672
+if$ -- 9141
+int.to.chr$ -- 1
+int.to.str$ -- 50
+missing$ -- 591
+newline$ -- 178
+num.names$ -- 126
+pop$ -- 1490
+preamble$ -- 1
+purify$ -- 210
+quote$ -- 0
+skip$ -- 2003
+stack$ -- 0
+substring$ -- 1097
+swap$ -- 3914
+text.length$ -- 111
+text.prefix$ -- 0
+top$ -- 8
+type$ -- 593
+warning$ -- 5
+while$ -- 122
+width$ -- 0
+write$ -- 416
+(There were 5 warnings)

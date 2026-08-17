@@ -453,6 +453,93 @@ print("value. The draft's 0.111 deg is thereby confirmed -- but only for a sched
 print("respects burnup matching, a requirement its simplified systematics could not see.")
 """),
 
+("md", r"""
+### How robust is the schedule to the fuel-evolution uncertainty?
+
+The $\pm30\%$ prior on the ingrowth rate is itself a guess. Two questions: how much does
+$\sigma(\theta_{13})$ depend on that prior, and does a larger uncertainty change what the
+*optimal* schedule is?
+"""),
+
+("code", r"""
+def interleaved(n, fa=0.13):
+    Ls, ds = [], []
+    for _ in range(n):
+        Ls += [0.20, 1.235]; ds += [fa*2*YEAR/n, (1-fa)*2*YEAR/n]
+    return schedule(Ls, ds)
+
+FAMILIES = {
+    "anchor first": draft_stops,
+    "anchor bracketed": brk,
+    "anchor mid-programme": mid,
+    "interleaved x3": interleaved(3),
+    "interleaved x6": interleaved(6),
+}
+evs = [0.0, 0.10, 0.30, 0.50, 1.00]
+rows = []
+for name, st in FAMILIES.items():
+    rows.append([name] + [model_sigma_deg(NearFarTheta13(
+        far_days=6*YEAR, stops=st, sigma_evolution=max(e, 1e-6))) for e in evs])
+print(pl.table(rows, ["schedule \\ sigma_evolution"] + [f"{100*e:.0f}%" for e in evs],
+               floatfmt="{:.4f}"))
+print()
+print("Once the schedule is burnup-matched, sigma(theta13) is flat in the evolution prior")
+print("from 0% to 100%: matching does not merely mitigate the fuel-evolution uncertainty,")
+print("it makes the measurement immune to it, because the anchor and the physics stop see")
+print("the same fuel trajectory and any coherent rescaling of it cancels. (The statement")
+print("covers uncertainties that rescale the ingrowth trajectory; a shape change of the")
+print("trajectory within the programme is likewise sampled by both stops in a matched")
+print("schedule.) Conversely, anchor-first is poor even with the evolution rate perfectly")
+print("known -- its 0.21 deg at 0% is the per-isotope flux covariance acting on mismatched")
+print("fuel mixtures -- so better reactor modelling cannot substitute for scheduling.")
+print()
+print("Interleaving more finely buys nothing over a simple bracket or mid-programme anchor:")
+print("all matched variants agree to 0.001 deg. The operationally simplest matched schedule")
+print("is as good as the most elaborate one.")
+"""),
+
+("code", r"""
+# Where should the single 13% anchor block sit?  x = fraction of the physics time
+# run before the anchor.
+t0 = time.time()
+xs = np.linspace(0.0, 1.0, 21)
+tp = 0.87 * 2 * YEAR
+curves = {}
+for e in (0.0, 0.30, 1.00):
+    vals = []
+    for x in xs:
+        blocks = ([(1.235, x*tp)] if x > 0 else []) + [(0.20, 0.13*2*YEAR)] + \
+                 ([(1.235, (1-x)*tp)] if x < 1 else [])
+        st = schedule([b[0] for b in blocks], [b[1] for b in blocks])
+        vals.append(model_sigma_deg(NearFarTheta13(far_days=6*YEAR, stops=st,
+                                                   sigma_evolution=max(e, 1e-6))))
+    curves[e] = np.array(vals)
+print(f"({time.time()-t0:.0f} s)")
+
+fig, ax = plt.subplots(figsize=(6.8, 4.3))
+for (e, v), color in zip(curves.items(), (pl.BLUE, pl.ORANGE, pl.RED)):
+    ax.plot(xs, v, color=color, label=rf"$\sigma_{{\rm evolution}} = {100*e:.0f}\%$")
+ax.axhline(0.1006, color=pl.INK_MUTED, lw=1.0, ls=":")
+ax.annotate("statistics-only floor", xy=(0.02, 0.1015), fontsize=8, color=pl.INK_SECONDARY)
+ax.set_xlabel("fraction of physics time run before the anchor stop")
+ax.set_ylabel(r"$\sigma(\theta_{13})$ [deg]")
+ax.set_title(r"Anchor placement, 13\% time share, 2 yr at 100 MW")
+ax.legend(fontsize=8.5)
+plt.tight_layout(); plt.show()
+
+print("The optimum is mid-programme for every evolution prior, and the curves nearly")
+print("coincide except at the endpoints: the placement penalty is dominated by the")
+print("mixture-mismatch flux systematic, with the evolution prior only steepening the")
+print("endpoints. A late anchor is cheaper than an early one -- the fuel drifts away from")
+print("a beginning-of-life anchor for the whole programme, while a late anchor at least")
+print("matches the recent physics data.")
+print()
+print("The anchor time share is equally robust: rescanning the bracketed split under")
+print("sigma_evolution = 30% and 100% returns the same optimal f_A ~ 0.13 as the draft.")
+print("The fuel-evolution uncertainty therefore does not change the optimal schedule at")
+print("all -- it only penalises the unmatched one.")
+"""),
+
 ("code", r"""
 # Delta chi^2 contours in the atmospheric plane, solar parameters fixed at truth
 # (their correlation with theta13/dm2_ee is at the percent level here).
@@ -661,7 +748,7 @@ ax.plot(100 * shape_scan, sig_shape_single, color=pl.BLUE, marker="s", ls="--",
         label="single stop at 1.14 km")
 pl.hline_reference(ax, TARGET_DEG, "NuFit 6.1")
 ax.set_yscale("log")
-ax.set_xlabel(r"a-priori shape uncertainty $\sigma_s$ [%]")
+ax.set_xlabel(r"a-priori shape uncertainty $\sigma_s$ [\%]")
 ax.set_ylabel(r"$\sigma(\theta_{13})$ at 2 yr [deg]")
 ax.set_title("The anchor removes the dependence on the shape prior")
 ax.legend(fontsize=8)
@@ -785,7 +872,7 @@ for kern, color in [("exponential", pl.ORANGE), ("gaussian", pl.BLUE)]:
     fl = [anchor_free_scan(sh, kernel=kern)[1] for sh in shapes]
     ax.loglog(100 * shapes, fl, color=color, marker="o", label=kern)
 pl.hline_reference(ax, TARGET_DEG, "NuFit 6.1")
-ax.set_xlabel(r"shape prior $\sigma_s$ [%]"); ax.set_ylabel(r"$\sigma(\theta_{13})$ floor [deg]")
+ax.set_xlabel(r"shape prior $\sigma_s$ [\%]"); ax.set_ylabel(r"$\sigma(\theta_{13})$ floor [deg]")
 ax.set_title("Anchor-free floor vs kernel choice"); ax.legend()
 plt.show()
 """),
