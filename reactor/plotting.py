@@ -78,7 +78,7 @@ def use_style() -> None:
             # "legend.framealpha": 0.92,
             "legend.edgecolor": GRID,
             "legend.facecolor": SURFACE,
-            "legend.fontsize": 9,
+            "legend.fontsize": 10,
             "mathtext.fontset": "cm",
             "text.usetex": True,
             "font.family": "serif",                  # Options: 'serif', 'sans-serif', 'monospace'

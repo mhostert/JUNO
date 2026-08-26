@@ -40,19 +40,29 @@ widths = np.diff(r.recoil_edges)
 cen = 0.5 * (r.recoil_edges[:-1] + r.recoil_edges[1:])
 
 # --- 5a: fake data, EvES channel with all components
-YEAR_LIVE = 365.25 * DAY * r.duty_cycle       # one calendar year at 90% duty
+YEAR_CAL = 365.25 * DAY                      # one calendar year
+YEAR_LIVE = YEAR_CAL * r.duty_cycle          # ... at 90% reactor duty
 sig = r.eves_spectrum_T() * YEAR_LIVE
 bkg = r.ibd_singles() * YEAR_LIVE
-sol = r.solar_eves_binned * YEAR_LIVE
+sol = r.solar_eves_binned * YEAR_CAL         # non-reactor: accrues on calendar time
 fig, ax = plt.subplots(figsize=(6.6, 4.4))
 ax.stairs(sig / widths, r.recoil_edges, color=pl.BLUE, lw=1.6, label=r"reactor E$\nu$ES signal")
 ax.stairs(bkg / widths, r.recoil_edges, color=pl.RED, lw=1.4,
           label=r"IBD singles (1\% untagged)")
 ax.stairs(sol / widths, r.recoil_edges, color=pl.GREEN, lw=1.4, label="solar neutrinos")
-tot = sig + bkg + sol
+sing = r.singles_binned * YEAR_CAL
+ax.stairs(sing / widths, r.recoil_edges, color=pl.MAGENTA, lw=1.5,
+          label="detector singles")
+c13r = r.c13_nc_binned * YEAR_LIVE
+c13s = r.c13_solar_binned * YEAR_CAL
+ax.stairs(c13r / widths, r.recoil_edges, color=pl.BROWN, lw=1.6,
+          label=r"$^{13}$C NC line (reactor)")
+ax.stairs(c13s / widths, r.recoil_edges, color=pl.BROWN, lw=1.2, ls="--",
+          label=r"$^{13}$C NC + CC (solar)")
+tot = sig + bkg + sol + sing + c13r + c13s
 ax.errorbar(cen, tot / widths, yerr=np.sqrt(tot) / widths, fmt="o", ms=1.8, color=pl.INK,
             lw=0.7, label="Asimov data (total)")
-ax.set_yscale("log")
+ax.set_yscale("log"); ax.set_ylim(1e2, 1e9)
 ax.set_xlabel(r"$T_{\rm rec}$ [MeV]"); ax.set_ylabel(r"events / MeV / year")
 ax.set_title(r"E$\nu$ES at JUNO from 10 MW at 50 m, one year at 90\% duty")
 ax.legend(fontsize=10)
@@ -107,8 +117,8 @@ ax.set_title(r"Existing constraints in the $(g_V, g_A)$ plane")
 ax.legend(fontsize=10, loc="upper left")
 save(fig, "nb5_gv_ga_landscape")
 
-# --- 5e: cross sections per LAB "molecule" (CH_1.67 unit: 1 C, 1.67 free protons,
-#     7.67 electrons), including the nubar_e -> nubar_e e+e- tridents from NEPTUNE
+# --- 5e: cross sections per LAB "molecule" (CH_1.63 unit: 1 C, 1.63 free protons,
+#     7.63 electrons), including the nubar_e -> nubar_e e+e- tridents from NEPTUNE
 from reactor.near_sm import eves_dsigma_dT
 from reactor.cross_sections import vogel_beacom
 from reactor.tridents import H_PER_C, E_PER_C     # LAB stoichiometry constants
@@ -130,8 +140,8 @@ ax.semilogy(enu, sig_tot("e", True, tmin=1.0), color=pl.BLUE, ls=":", lw=1.6,
 ax.semilogy(enu, vogel_beacom(enu, order=1) * H_PER_C, color=pl.RED, lw=1.8,
             label=r"IBD $\bar\nu_e p$")
 ax.set_ylim(1e-44, 2e-41)
-ax.set_xlabel(r"$E_\nu$ [MeV]"); ax.set_ylabel(r"$\sigma$ per CH$_{1.67}$ unit [cm$^2$]")
-ax.set_title(r"Cross sections per LAB molecule (C$_{18}$H$_{30}$ / 18)")
+ax.set_xlabel(r"$E_\nu$ [MeV]"); ax.set_ylabel(r"$\sigma$ per CH$_{1.63}$ unit [cm$^2$]")
+ax.set_title(r"Cross sections per carbon of LAB (CH$_{1.63}$)")
 ax.legend(fontsize=10, loc="lower right", ncol=2)
 save(fig, "nb5_cross_sections")
 
@@ -147,6 +157,54 @@ ax.set_xlabel(r"$T$ [MeV]"); ax.set_ylabel(r"$d\sigma/dT$ [$10^{-42}$ cm$^2$/MeV
 ax.set_title(rf"Recoil spectra at $E_\nu = {E0:.0f}$ MeV")
 ax.legend(fontsize=10)
 save(fig, "nb5_dsigma_dT")
+
+# --- 5g: detector singles by component, showing the 208Tl external-gamma wall
+fig, ax = plt.subplots(figsize=(6.8, 4.6))
+w5 = np.diff(r.recoil_edges)
+ax.stairs(r.eves_spectrum_T() * DAY / w5, r.recoil_edges, color=pl.BLUE, lw=2.0,
+          label=r"E$\nu$ES signal")
+for name, color, ls in (("external gammas", pl.RED, "-"),
+                        ("internal 214Bi", pl.ORANGE, "--"),
+                        ("internal 208Tl", pl.MAGENTA, "-."),
+                        ("cosmogenic 11C", pl.GREEN, "--"),
+                        ("cosmogenic 11Be", pl.INK_SECONDARY, ":")):
+    if name in r.singles_components:
+        ax.stairs(r.singles_components[name] * DAY / w5, r.recoil_edges,
+                  color=color, lw=1.5, ls=ls, label=name)
+ax.stairs(r.c13_nc_binned * DAY / w5, r.recoil_edges, color=pl.BROWN, lw=1.8,
+          label=r"$^{13}$C NC line (reactor)")
+ax.stairs(r.c13_solar_binned * DAY / w5, r.recoil_edges, color=pl.BROWN, lw=1.2,
+          ls="--", label=r"$^{13}$C (solar)")
+ax.axvline(2.615, color=pl.INK_MUTED, lw=1.0, ls=":")
+ax.annotate(r"$^{208}$Tl 2.615 MeV" "\n" r"external $\gamma$ wall", xy=(2.70, 6e4),
+            fontsize=9, color=pl.INK_SECONDARY)
+ax.set_yscale("log"); ax.set_ylim(1e-2, 1e6); ax.set_xlim(1.0, 6.5)
+ax.set_xlabel(r"$T_{\rm rec}$ [MeV]"); ax.set_ylabel("events / MeV / day")
+ax.set_title("Detector singles against the reactor signal")
+ax.legend(fontsize=10, ncol=2)
+save(fig, "nb5_singles")
+
+# --- 5h: sigma(sw2) vs the reactor-off exposure ratio, and vs the singles scale
+r_grid = np.array([0.02, 0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0])
+joint_r = [FixedNearReactor(burnup=0.5, reactor_off_ratio=rr).sigma_sw2(30.0, joint=True) * 100
+           for rr in r_grid]
+ev_r = [FixedNearReactor(burnup=0.5, reactor_off_ratio=rr).sigma_sw2(30.0) * 100
+        for rr in r_grid]
+# r = 0 is not the limit of the curve: it is the *other* analysis, in which the
+# singles shape is taken from the model and only its normalisation is profiled.
+trust = FixedNearReactor(burnup=0.5, reactor_off_ratio=0.0)
+fig, ax = plt.subplots(figsize=(6.4, 4.4))
+ax.semilogx(r_grid, joint_r, color=pl.BLUE, lw=1.9, label="joint IBD + E$\\nu$ES")
+ax.semilogx(r_grid, ev_r, color=pl.RED, lw=1.9, ls="--", label="E$\\nu$ES only")
+ax.axhline(trust.sigma_sw2(30.0, joint=True) * 100, color=pl.GREEN, lw=1.3, ls="-.",
+           label="joint, no off-run (singles shape from the model)")
+ax.axvline(1.0, color=pl.INK_MUTED, lw=1.0, ls=":")
+ax.annotate("equal on/off", xy=(1.06, 0.30), fontsize=9, color=pl.INK_SECONDARY)
+ax.set_xlabel(r"reactor-off exposure ratio $r = t_{\rm off}/t_{\rm on}$")
+ax.set_ylabel(r"$\sigma(\sin^2\theta_W)$ [\%]")
+ax.set_title(r"What the reactor-off run buys, 30 MW$\cdot$yr")
+ax.legend(fontsize=10)
+save(fig, "nb5_onoff")
 
 # --- 5d: atomic stepping
 t_dem = np.logspace(-6, 1, 800)
@@ -310,7 +368,6 @@ def plot_nue_dis(ax):
     ax.fill_betweenx(ty, tx, tx / tx, edgecolor="lightgrey", facecolor="lightgrey", lw=0.5, alpha=1, zorder=zorder)
     Ga0 = np.loadtxt(lp / "Gallium_2sigma_l0.csv", delimiter=",")
     Ga1 = np.loadtxt(lp / "Gallium_2sigma_l1.csv", delimiter=",")
-    Ga1 = np.vstack(([Ga1[0, 0], Ga1[0, 1] * 1e4], Ga1, [Ga1[-1, 0], Ga1[-1, 1] * 1e4]))
     for G in (Ga0, Ga1):
         ax.fill(G[:, 0], G[:, 1], lw=0.75, edgecolor="None", facecolor="orange", zorder=zorder, alpha=0.6)
         ax.fill(G[:, 0], G[:, 1], lw=0.75, edgecolor="orange", facecolor="None", zorder=zorder, alpha=1)
@@ -332,26 +389,33 @@ proxy = [Line2D([0], [0], color="grey", lw=1.0, label=r"KATRIN 95\% CL"),
 ax.legend(handles=proxy, loc="upper left", fontsize=10, framealpha=0.95)
 ax.add_artist(leg_main)
 ax.set_xlim(1e-4, 1); ax.set_ylim(dm2_land[0], dm2_land[-1])
-ax.set_xlabel(r"$\sin^2 2\theta_{ee}$"); ax.set_ylabel(r"$\Delta m^2_{41}$ [eV$^2$]")
+ax.set_xlabel(r"$\sin^2 2\theta_{14}$"); ax.set_ylabel(r"$\Delta m^2_{41}$ [eV$^2$]")
 ax.set_title(r"$95\%$ CL sensitivity, 27 MW$\cdot$yr")
 save(fig, "nb6_sensitivity_landscape")
 
-# --- 6d: L-binned vs integrated, IBD-only, at 50 m
-fig, ax = plt.subplots(figsize=(5.4, 4.6))
-ax.loglog(land_curves[50][0], dm2_land, color=pl.BLUE, lw=1.9, label=r"D = 50 m, IBD + E$\nu$ES, $L$-binned")
+# --- 6d: L-binned vs integrated, IBD-only, at 50 m.  Two integrated variants:
+#     with the same free E-shape as the L-binned fit (which leaves it with no
+#     handle at all), and with the Daya Bay shape covariance as a prior.
+st50_nolbin_prior = SterileNearReactor(distance_m=50.0, l_binned=False, free_shape=False)
+fig, ax = plt.subplots(figsize=(5.8, 4.6))
+ax.loglog(land_curves[50][0], dm2_land, color=pl.BLUE, lw=1.9, label=r"$L$-binned, IBD + E$\nu$ES")
 ax.loglog(SterileNearReactor(distance_m=50.0, include_eves=False).limit_curve(dm2_land), dm2_land,
-          color=pl.GREEN, ls="-.", lw=1.5, label="D = 50 m, IBD only")
-ax.loglog(st50_nolbin.limit_curve(dm2_land), dm2_land, color=pl.BLUE, ls="--", lw=1.6,
-          label=r"D = 50 m, no $L$ binning")
-ax.set_xlim(3e-4, 1); ax.set_ylim(dm2_land[0], dm2_land[-1])
+          color=pl.GREEN, ls="-.", lw=1.5, label=r"$L$-binned, IBD only")
+ax.loglog(st50_nolbin_prior.limit_curve(dm2_land), dm2_land, color=pl.ORANGE, ls="-", lw=1.6,
+          label=r"integrated, Daya Bay shape prior")
+ax.loglog(st50_nolbin.limit_curve(dm2_land), dm2_land, color=pl.INK_MUTED, ls="--", lw=1.6,
+          label=r"integrated, free shape")
+ax.set_xlim(3e-4, 1.2); ax.set_ylim(dm2_land[0], dm2_land[-1])
 ax.set_xlabel(r"$\sin^2 2\theta_{14}$"); ax.set_ylabel(r"$\Delta m^2_{41}$ [eV$^2$]")
-ax.set_title(r"What the finite size buys")
-ax.legend(fontsize=10, loc="upper left")
+ax.set_title(r"What the finite size buys, D = 50 m")
+ax.legend(fontsize=9, loc="upper left")
 save(fig, "nb6_lbinned_vs_integrated")
 
 # --- 6e: the high-dm2 wall
-dm2_hi = np.logspace(-0.3, 1.48, 45)
-GRID = dict(l_bin_m=0.25, n_e_grid=4800)
+dm2_hi = np.logspace(-0.3, 1.78, 45)
+# The oscillation length falls below a centimetre at the top of this range, so
+# the E-grid has to resolve it: 9600 nodes, verified converged against 19200.
+GRID = dict(l_bin_m=0.25, n_e_grid=9600)
 configs = [
     ("point core, perfect vertex", dict(core_radius_m=0.0, sigma_vertex_m=0.0, n_sub=25, **GRID), pl.INK_SECONDARY, ":"),
     (r"+ vertex resolution $10\,{\rm cm}/\sqrt{E}$", dict(core_radius_m=0.0, sigma_vertex_m=0.10, **GRID), pl.GREEN, "-"),
@@ -362,7 +426,8 @@ fig, ax = plt.subplots(figsize=(6.2, 4.6))
 for lab, kw, color, ls in configs:
     stx = SterileNearReactor(distance_m=50.0, **kw)
     ax.loglog(stx.limit_curve(dm2_hi), dm2_hi, color=color, ls=ls, lw=1.8, label=lab)
-ax.set_xlim(5e-4, 3e-1); ax.set_ylim(dm2_hi[0], dm2_hi[-1])
+ax.axvline(0.1, color=pl.INK_MUTED, lw=0.9, ls=":")
+ax.set_xlim(5e-4, 1.0); ax.set_ylim(dm2_hi[0], dm2_hi[-1])
 ax.set_xlabel(r"$\sin^2 2\theta_{14}$"); ax.set_ylabel(r"$\Delta m^2_{41}$ [eV$^2$]")
 ax.set_title(r"The high-$\Delta m^2$ wall, D = 50 m")
 ax.legend(fontsize=10, loc="upper left")

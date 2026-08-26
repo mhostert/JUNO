@@ -500,17 +500,26 @@ for d, color in zip(distance, colors):
       curves[f"D = {d} m, IBD + EvES"] = (st[-1].limit_curve(dm2_grid), color, "-")
 
 st50_ibd = SterileNearReactor(distance_m=distance[0], include_eves=False)
-curves[f"D = {distance[0]} m, no L binning"] = (st50_ibd.limit_curve(dm2_grid), pl.INK_MUTED, "--")
+curves[f"D = {distance[0]} m, IBD only"] = (st50_ibd.limit_curve(dm2_grid), pl.GREEN, "-.")
+# Two integrated (no L binning) variants: with the same free E-shape as the
+# L-binned fit, and with the Daya Bay shape covariance imposed as a prior.
+st50_int = SterileNearReactor(distance_m=distance[0], l_binned=False)
+st50_int_prior = SterileNearReactor(distance_m=distance[0], l_binned=False, free_shape=False)
+curves[f"D = {distance[0]} m, integrated, free shape"] = (st50_int.limit_curve(dm2_grid), pl.INK_MUTED, "--")
+curves[f"D = {distance[0]} m, integrated, Daya Bay prior"] = (st50_int_prior.limit_curve(dm2_grid), pl.ORANGE, "-")
 
-i1 = np.argmin(np.abs(dm2_grid - 1.0))
-i03 = np.argmin(np.abs(dm2_grid - 0.3))
-print(f"the finite-size gain, L-binned vs integrated:")
-print(f"   at dm2 = 0.3 eV^2 : {curves['D = 50 m, IBD + EvES'][0][i03]:.2e} vs "
-      f"{curves['D = 50 m, no L binning'][0][i03]:.2e}  -> factor "
-      f"{curves['D = 50 m, no L binning'][0][i03]/curves['D = 50 m, IBD + EvES'][0][i03]:.0f}")
-print(f"   at dm2 = 1.0 eV^2 : {curves['D = 50 m, IBD + EvES'][0][i1]:.2e} vs "
-      f"{curves['D = 50 m, no L binning'][0][i1]:.2e}  -> factor "
-      f"{curves['D = 50 m, no L binning'][0][i1]/curves['D = 50 m, IBD + EvES'][0][i1]:.0f}")
+print("the finite-size gain, L-binned vs integrated:")
+lb = curves['D = 50 m, IBD + EvES'][0]
+fr = curves['D = 50 m, integrated, free shape'][0]
+pr = curves['D = 50 m, integrated, Daya Bay prior'][0]
+for dm in (0.3, 1.0, 3.0, 10.0):
+    i = np.argmin(np.abs(dm2_grid - dm))
+    print(f"   dm2 = {dm2_grid[i]:5.2f} eV^2 : L-binned {lb[i]:.2e} | integrated, free shape "
+          f"{fr[i]:.2e} | integrated, Daya Bay prior {pr[i]:.2e} (x{pr[i]/lb[i]:.0f})")
+print("With the E-shape left free, an integrated analysis has one free mode per E bin and")
+print("a single L bin, so it has no handle at all: its curve sits at s22 ~ 0.5-0.8 across")
+print("the whole range.  The only integrated analysis with any reach is one that imposes")
+print("the Daya Bay flux shape -- the measurement that would itself carry the depletion.")
 """),
 
 ("code", r"""
@@ -553,9 +562,6 @@ def plot_nue_dis(ax):
     # Gallium
     Ga2S0 = np.loadtxt(f"{limits_path}/Gallium_2sigma_l0.csv", delimiter=",")
     Ga2S1 = np.loadtxt(f"{limits_path}/Gallium_2sigma_l1.csv", delimiter=",")
-    # Extend to higher masses
-    Ga2S1 = np.vstack(([Ga2S1[0,0],Ga2S1[0,1]*1e4], Ga2S1))
-    Ga2S1 = np.vstack((Ga2S1, [Ga2S1[-1,0],Ga2S1[-1,1]*1e4]))
     ax.fill(Ga2S0[:,0], Ga2S0[:,1], lw=0.75, edgecolor='None', facecolor='orange', ls='-', zorder=zorder, alpha=0.6)
     ax.fill(Ga2S0[:,0], Ga2S0[:,1], lw=0.75, edgecolor='orange', facecolor='None', ls='-', zorder=zorder, alpha=1)
     ax.fill(Ga2S1[:,0], Ga2S1[:,1], lw=0.75, edgecolor='None', facecolor='orange', ls='-', zorder=zorder, alpha=0.6)
@@ -617,13 +623,16 @@ plt.tight_layout(); plt.show()
 """),
 
 ("code", r"""
-print("The gain is dm2-dependent: near 1 eV^2 the integrated E-shape analysis happens to")
-print("work (its surviving E-wiggles resist the flux covariance) and the gap narrows to")
-print("~3x; away from that sweet spot the integrated limit collapses into the flux")
-print("degeneracy and the wiggle search wins by up to ~70x. The L-binned curve is the")
-print("uniformly robust one.")
+print("Against the integrated analysis that keeps the Daya Bay flux prior, the gain is")
+print("dm2-dependent: near 1-3 eV^2 the integrated E-shape analysis happens to work (its")
+print("surviving E-wiggles resist the flux covariance) and the gap narrows to ~3-4x; away")
+print("from that sweet spot the integrated limit collapses into the flux degeneracy and")
+print("the wiggle search wins by up to ~90x. Above ~15 eV^2 the ordering reverses: the L")
+print("wiggle is smeared out while the E wiggle is not, and the prior-based analysis is")
+print("the better one by up to 5x. The L-binned curve is the uniformly robust one below")
+print("the wall, and the only one that needs no prior at all.")
 print()
-print("The shape of the no-L-binning (dashed) curve deserves its own explanation, verified")
+print("The shape of the Daya-Bay-prior curve deserves its own explanation, verified")
 print("by ablation: its wall below dm2 ~ 0.6 eV^2 and its bumps at 2-3 eV^2 are the U235")
 print("flux-shape covariance. Where the volume-integrated depletion is smooth in E (see")
 print("the spectrum figure above), the measured-flux uncertainty absorbs it -- removing")
@@ -639,7 +648,7 @@ print("Reading the multi-distance curves: each standoff owns a dm2 decade. The r
 print("scales with the accumulated phase Delta_41 ~ dm2 x D / E: 50 m covers 0.2-3 eV^2")
 print("at ~1e-3, 100 m shifts the sweet spot to 0.1-1 eV^2, and 500 m / 1400 m open the")
 print("region below 0.1 eV^2 -- but at 1/D^2 the rate cost (586 and 71 IBD/day) leaves")
-print("them at ~1e-2. Above ~5 eV^2 the baseline smearing (core + vertex resolution,")
+print("500 m at 2e-2 and 1400 m at 1.8e-1. Above ~5 eV^2 the baseline smearing (core + vertex resolution,")
 print("dissected below) washes out every standoff alike. EvES adds little (no E_nu")
 print("reconstruction dilutes its wiggle) but rides along for free.")
 """),
@@ -674,8 +683,11 @@ print("as they must (Delta_31 = 0.04 rad across the whole detector).")
 ## What limits it
 
 The wiggle search is by construction immune to flux-shape systematics — they carry no
-$L$-dependence. The one nuisance that lives in the wiggle direction is the **detector
-response non-uniformity** across the volume: independent per-$L$-bin efficiency modes.
+$L$-dependence. The nuisances that live in the wiggle direction are the **detector
+response non-uniformities** across the volume, both modelled as Gaussian-correlated
+fields over $L$ with a 1.5 m correlation length: an *efficiency* field (0.5%), and a
+position-dependent *energy scale* (0.2%), which is the one that distorts the spectrum
+in $E$ as a function of $L$ — the same joint direction the signal lives in.
 """),
 
 ("code", r"""
@@ -684,23 +696,33 @@ fig, ax = plt.subplots(figsize=(6.9, 4.6))
 for unif, color in ((0.001, pl.GREEN), (0.005, pl.BLUE), (0.02, pl.RED)):
     stu = SterileNearReactor(distance_m=50.0, sigma_uniformity=unif)
     ax.loglog(stu.limit_curve(dm2_grid), dm2_grid, color=color, lw=1.8,
-              label=rf"non-uniformity ${100*unif:.1f}\%$ / bin")
+              label=rf"efficiency field ${100*unif:.1f}\%$, E-scale field $0.2\%$")
+st_perfect = SterileNearReactor(distance_m=50.0, sigma_uniformity=1e-6,
+                                sigma_escale_uniformity=0.0)
+ax.loglog(st_perfect.limit_curve(dm2_grid), dm2_grid, color=pl.ORANGE, ls="-.",
+          lw=1.5, label="perfectly uniform detector")
 st_stat = SterileNearReactor(distance_m=50.0, sigma_norm=1e-6, sigma_uniformity=1e-6,
-                             sigma_channel_ratio=1e-6, sigma_u238=1e-6,
-                             use_flux_covariance=False)
+                             sigma_escale_uniformity=0.0, sigma_channel_ratio=1e-6,
+                             sigma_u238=1e-6, sigma_evolution=1e-6,
+                             use_flux_covariance=False, free_shape=False)
 ax.loglog(st_stat.limit_curve(dm2_grid), dm2_grid, color=pl.INK_SECONDARY, ls=":",
-          lw=1.6, label="statistics only")
+          lw=1.6, label="statistics only (no free shape)")
 ax.set_xlim(1e-4, 3e-1); ax.set_ylim(3e-2, 3e1)
 ax.set_xlabel(r"$\sin^2 2\theta_{14}$"); ax.set_ylabel(r"$\Delta m^2_{41}$ [eV$^2$]")
-ax.set_title(r"Impact of the per-bin response uniformity, D = 50 m")
+ax.set_title(r"Impact of the detector response uniformity, D = 50 m")
 ax.legend(fontsize=8.5, loc="upper left")
 plt.tight_layout(); plt.show()
 print(f"({time.time()-t0:.0f} s)")
 
-print("With ~7e7 IBD events, the per-bin statistics reach a few 1e-4 in the depletion, so")
-print("the assumed 0.5% uniformity field is already the limiter over most of the plane.")
-print("JUNO's calibration programme quotes sub-percent response uniformity; pushing it to")
-print("0.1% would gain another factor ~2-3.")
+print("With ~7e7 IBD events the per-bin statistics reach a few 1e-4 in the depletion, and")
+print("that -- together with the free E-shape -- is what sets the reach. Both uniformity")
+print("fields together cost under 1%: an efficiency field is energy independent and the")
+print("E-dependence of the oscillation phase breaks it, while the energy-scale field does")
+print("distort the spectrum in E as a function of L but spans only ~20 correlated modes")
+print("over a 33 m span, which the fit simply projects out. Its cost saturates: 0.2% and")
+print("1% give the same answer to three digits. Freeing the reactor E-shape, by contrast,")
+print("costs a factor 2.4 against a pure-statistics fit -- that is the price of not using")
+print("the Daya Bay measurement, and it is the price worth paying.")
 print()
 print("And the audit of the E-direction systematics -- all Daya-Bay-anchored -- at 1 eV^2:")
 rows = [["standard (shape-only)", SterileNearReactor(distance_m=50.0).limit(1.0)],
@@ -740,7 +762,7 @@ verified converged from 1200 to 9600 points at every plotted $\Delta m^2$.
 ("code", r"""
 t0 = time.time()
 dm2_hi = np.logspace(-0.3, 1.48, 45)      # 0.5 - 30 eV^2
-GRID = dict(l_bin_m=0.25, n_e_grid=4800)
+GRID = dict(l_bin_m=0.25, n_e_grid=9600)
 configs = [
     ("point core, perfect vertex (ideal)",
      dict(core_radius_m=0.0, sigma_vertex_m=0.0, n_sub=25, **GRID),
@@ -770,15 +792,14 @@ for lab, kw, _, _ in configs:
 print(pl.table(rows, ["configuration", "s22 at 3 eV^2", "at 10 eV^2", "at 20 eV^2"],
                floatfmt="{:.2e}"))
 print()
-print("The hierarchy of walls: even with a point source and perfect vertexing, the ENERGY")
-print("resolution terminates the search through the L/E phase (sigma_phi ~ dm2 L sigma_E/")
-print("E^2) -- in stages, the high-E tail surviving longest -- with everything at the")
-print("rate-only floor s22 ~ 0.09 by ~30 eV^2. The vertex resolution costs almost nothing")
-print("on top of that; a compact 0.5 m core caps the reach near 10 eV^2 (its line-of-sight")
-print("spread, 0.5/sqrt(5) = 0.22 m, dominates the smearing); a 1.5 m core pulls the wall")
-print("down to ~4 eV^2. The message for the source design: for eV^2-scale physics the core")
-print("compactness is as important as the power -- a microreactor with a sub-metre core is")
-print("precisely the right instrument, and JUNO's vertexing is never the bottleneck.")
+print("The hierarchy of walls, quoted as the dm2 at which the reach crosses s22 = 0.1.")
+print("Even with a point source and perfect vertexing the ENERGY resolution terminates the")
+print("search through the L/E phase (sigma_phi ~ dm2 L sigma_E/E^2), at 14 eV^2; JUNO's")
+print("vertexing costs almost nothing on top of that (13 eV^2); a 0.5 m core brings it to")
+print("12 eV^2 and a 1.5 m core to 8.  Above the wall every configuration loses sensitivity")
+print("entirely, as it must: a fully averaged depletion is L- and E-independent and so is")
+print("exactly the normalisation this analysis leaves free.  Core compactness helps, but")
+print("the energy resolution sets the ceiling and JUNO's vertexing is never the bottleneck.")
 """),
 
 ("md", r"""
@@ -791,32 +812,37 @@ oscillation analyses — into the instrument:
 |---|---|---|---|---|
 | IBD rate | $61$k/day | $15$k/day | $590$/day | $71$/day |
 | baseline span | $33$–$67$ m | $84$–$117$ m | $484$–$517$ m | $1384$–$1417$ m |
-| best $\sin^22\theta_{14}$ ($95\%$) | $\approx1\times10^{-3}$ at $0.3$–$1$ eV$^2$ | $\approx2\times10^{-3}$ at $0.1$–$0.5$ | $\approx2\times10^{-2}$ at $0.05$–$0.1$ | $\approx5\times10^{-2}$ at $0.01$–$0.03$ |
+| best $\sin^22\theta_{14}$ ($95\%$) | $9.5\times10^{-4}$ at $0.5$ eV$^2$ | $2.1\times10^{-3}$ at $0.4$ | $2.2\times10^{-2}$ at $0.16$ | $1.8\times10^{-1}$ at $0.065$ |
 
 Each standoff owns roughly a decade of $\Delta m^2$ — the reach follows the accumulated
 phase $\Delta_{41}\propto\Delta m^2 D/E$ — while the rate falls as $1/D^2$: the compact
 near standoffs are where the sensitivity is, and the kilometre ones only open the region
 below $0.1$ eV$^2$ at the few-percent level. The **full 3+1** formula (all three
-$\Delta_{i4}$ phases and the $\theta_{13}$-oscillated null) matters at the few-percent
-level in the limit at $1.4$ km for $\Delta m^2\lesssim0.1$ eV$^2$ and is identically
-null at $50$ m.
+$\Delta_{i4}$ phases, the $\theta_{13}$-oscillated null, and the $(1-s_{14})^2$ term that
+switches part of it off) matters at the few-percent level in the limit at $1.4$ km for
+$\Delta m^2\lesssim0.1$ eV$^2$ and is identically null at $50$ m.
 
 * The analysis is **shape-only by construction and by necessity**: the flux
   normalisation and the reactor $E$-shape are left completely free, because the Daya Bay
   measurement they would otherwise constrain was itself taken at $500$ m and would carry
   the sterile depletion ($\approx\sin^22\theta_{14}/2$). Freeing them costs $<0.5\%$
   across $0.03$–$3$ eV$^2$ — the sensitivity was a pure $L/E$-shape measurement all along.
-* The vertex-binned wiggle search beats the integrated analysis by a $\Delta m^2$-dependent
-  factor — $\sim3$–$5$ at the integrated analysis's one sweet spot near $1$ eV$^2$, up to
-  $\sim70$ elsewhere — and, unlike it, needs no flux prior at all.
-* The honest limiter in $\sin^22\theta_{14}$ is the detector response uniformity across
-  the volume ($0.5\%$, $1.5$ m correlation length assumed; JUNO calibration supports
-  sub-percent), with the statistics floor a factor $\sim2$ below.
-* The **high-$\Delta m^2$ wall is the core size**: a $0.5$ m core reaches $\sim10$
-  eV$^2$, a $1.5$ m core $\sim4$. JUNO's vertexing is never the bottleneck — even with a
-  point source, the *energy resolution* (through the $L/E$ phase) ends the search by
-  $\sim20$–$30$ eV$^2$, decaying in stages with the high-$E$ tail surviving longest.
-  Compactness is as valuable as power.
+* An integrated analysis with the same free $E$-shape has **no sensitivity at all** — one
+  free mode per $E$ bin and a single $L$ bin leaves nothing to fit — so the only
+  integrated comparison with any reach is one that imposes the Daya Bay flux shape. The
+  vertex-binned search beats *that* by $\sim3$–$4$ at its sweet spot near $1$–$3$ eV$^2$
+  and by up to $\sim90$ elsewhere, while needing no prior at all.
+* The reach is set by statistics and by the free-shape construction, not by the detector:
+  the efficiency and energy-scale uniformity fields together cost under $1\%$, and the
+  energy-scale cost saturates (0.2% and 1% agree to three digits) because the field spans
+  only $\sim20$ correlated modes across the volume. Freeing the reactor $E$-shape costs a
+  factor $2.4$ against pure statistics.
+* The **high-$\Delta m^2$ wall is the energy resolution**, through the $L/E$ phase
+  ($\sigma_\phi\propto\Delta m^2 L\sigma_E/E^2$): even a point source with perfect
+  vertexing loses $\sin^22\theta_{14}=0.1$ by $14$ eV$^2$. JUNO's vertexing costs almost
+  nothing ($13$ eV$^2$); the core size is the secondary effect, $12$ eV$^2$ for a $0.5$ m
+  core and $8$ for $1.5$ m. Above the wall every configuration loses sensitivity entirely,
+  since a fully averaged depletion is exactly the free normalisation.
 * E$\nu$ES rides along but adds little — without $E_\nu$ reconstruction its wiggles wash
   out; its role remains the SM coupling measurement of notebook 5.
 * $50$ m outperforms every longer standoff except below $\Delta m^2\lesssim0.1$ eV$^2$,

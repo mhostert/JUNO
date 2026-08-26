@@ -43,22 +43,32 @@ The **full 3+1 vacuum** electron-antineutrino survival probability is used:
 with |U_e4|^2 = sin^2 theta14 and |U_e1,2,3|^2 = cos^2 theta14 x (3-nu values).
 Splitting off the sterile part,
 
-    P_ee = P3(cos^4 th14 x standard) - sin^2(2 th14) sum_i f_i sin^2(Delta_i4),
+    P_ee = 1 - (1-s14)^2 (1 - P3) - sin^2(2 th14) sum_i f_i sin^2(Delta_i4),
     f_i = |U_ei|^2_{3nu}   (sum f_i = 1),   Delta_i4 = 1.267 (m4^2 - m_i^2) L / E,
 
 so at baselines where Delta_31 or Delta_21 are not negligible (D ~ 1 km, or
 dm2_41 <~ 1e-2 eV^2 where the sterile and atmospheric frequencies mix) the
 three "sterile" phases Delta_14, Delta_24, Delta_34 are all carried, and so is
 the theta13 disappearance itself (the null hypothesis is the 3-nu spectrum,
-not the un-oscillated one).  The prediction remains linear in sin^2(2 th14) up
-to O(sin^4 th14) corrections in the standard term (checked to be < 1e-3 of the
-sterile term for s22 <= 0.1), so against the 3-nu Asimov
+not the un-oscillated one).
+
+Expanding the (1-s14)^2 factor gives 1 - (1-s14)^2 = s22/2 + O(s22^2), so the
+prediction stays *exactly* affine in s22 to first order with the template
+
+    W = sum_i f_i sin^2(Delta_i4) - (1 - P3) / 2,
+
+the second term being the piece of the standard theta13 disappearance that the
+sterile mixing switches off.  It is 6e-4 of the first term at 50 m and ~3% at
+1.4 km, and it carries no L-wiggle.  Against the 3-nu Asimov,
 
     Delta chi^2(dm2, s22) = s22^2 Q(dm2),  Q = W^T C^-1 W,
 
-still holds and the exclusion curve is analytic.  C = diag(mu) + V^T V is
-handled by the Woodbury identity, so fine binnings cost nothing.  Identical
-for IBD (CC) and EvES (CC+NC): an oscillated nu_e is sterile.
+so the exclusion curve is analytic.  C = diag(mu) + V^T V is handled by the
+Woodbury identity, so fine binnings cost nothing.  The sterile depletion is
+identical for IBD (CC) and EvES (CC+NC): an oscillated nu_e is sterile.  The
+nubar_mu/nubar_tau that the standard oscillation produces still scatters by NC
+and is carried with its own cross section, so the EvES null is exact at every
+baseline.
 
 Why the analysis is shape-only (and why it must be)
 ---------------------------------------------------
@@ -84,10 +94,18 @@ Systematics
   coherent in L;
 * **fuel evolution**: the run-averaged HALEU burnup (default mid-cycle, Daya
   Bay trajectory) with a +-30% ingrowth uncertainty -- again E-direction only;
-* detector response non-uniformity: a Gaussian-correlated field over L
-  (default 0.5% amplitude, 1.5 m correlation length) -- the one systematic in
-  the wiggle direction, modelled with a physical correlation length so that
-  finer binning does not manufacture artificial high-frequency freedom;
+* detector response non-uniformity across the volume -- the systematics that
+  live in the wiggle direction, both modelled as Gaussian-correlated fields
+  over L with a physical correlation length (default 1.5 m) so that finer
+  binning does not manufacture artificial high-frequency freedom:
+
+    - an *efficiency* field (default 0.5%), which is energy independent and is
+      therefore broken by the E-dependence of the oscillation phase;
+    - an *energy-scale* field (default 0.2%), the position-dependent light
+      collection.  This one distorts the spectrum in E as a function of L, i.e.
+      in the same joint (L, E) direction the signal lives in, and is the
+      limiting systematic of the search;
+
 * the IBD/EvES channel ratio (0.5%).
 """
 
@@ -145,6 +163,7 @@ class SterileNearReactor:
         # would itself carry a sterile depletion) enters the sensitivity.
         sigma_norm: float = 1.0e3,
         sigma_uniformity: float = 0.005,
+        sigma_escale_uniformity: float = 0.002,
         uniformity_corr_m: float = 1.5,
         sigma_channel_ratio: float = 0.005,
         sigma_u238: float = 0.15,
@@ -197,12 +216,33 @@ class SterileNearReactor:
         nl_e = TabulatedNonLinearity.from_release("electron")
         t_vis = nl_e.visible_energy(t_grid)
         R_t = gaussian_bin_response(t_vis, self.t_edges, res.sigma(t_vis))
-        # collapse the EvES kernel once: (n_tbins x nE), so every later EvES
-        # spectrum is a single small matmul
-        K = eves_dsigma_dT(enu[None, :], t_grid[:, None], "e", True, GV_SM, GA_SM)
+        # collapse the EvES kernels once: (n_tbins x nE), so every later EvES
+        # spectrum is a single small matmul.  Both flavour channels are kept:
+        # the surviving nubar_e scatters through CC+NC, the nubar_mu/nubar_tau
+        # that the standard oscillation produces through NC alone.
+        K_e = eves_dsigma_dT(enu[None, :], t_grid[:, None], "e", True, GV_SM, GA_SM)
+        K_x = eves_dsigma_dT(enu[None, :], t_grid[:, None], "mu", True, GV_SM, GA_SM)
         self._R_t_w = R_t * w_t[None, :]
-        self._A_eves = self._R_t_w @ K
+        self._A_eves = self._R_t_w @ K_e
+        self._A_eves_x = self._R_t_w @ K_x
         self._t_grid = t_grid
+
+        # Energy-scale derivatives of both response matrices, for the
+        # position-dependent light-collection systematic below.
+        hh = 1.0e-3
+
+        def _d_scale(nl, src, edges):
+            out = []
+            for s in (+hh, -hh):
+                ev = src * (1.0 + s) * nl.factor(src)
+                out.append(gaussian_bin_response(ev, edges, res.sigma(ev)))
+            return (out[0] - out[1]) / (2.0 * hh)
+
+        self._dR_ibd_scale = _d_scale(nl_p, e_dep, self.e_edges)
+        dR_t_scale = _d_scale(nl_e, t_grid, self.t_edges)
+        self._dA_eves = (dR_t_scale * w_t[None, :]) @ K_e
+        self._dA_eves_x = (dR_t_scale * w_t[None, :]) @ K_x
+        self._dR_ibd_t_scale = _d_scale(nl_p, e_dep, self.t_edges)
 
         # -- geometry ----------------------------------------------------------
         D, R = distance_m, detector_radius_m
@@ -256,7 +296,8 @@ class SterileNearReactor:
             p3 = self._p3_bin[i]
             self._ibd_null.append(self._R_ibd @ (yld * g * p3))
             if include_eves:
-                self._eves_null.append(self._A_eves @ (flux_w * ge * p3))
+                self._eves_null.append(self._A_eves @ (flux_w * ge * p3)
+                                       + self._A_eves_x @ (flux_w * ge * (1.0 - p3)))
                 self.ibd_singles.append(untagged_fraction * (R_ibd_t @ (yld * g * p3)))
         self.null = self._stack(self._ibd_null,
                                 [n + s for n, s in zip(self._eves_null,
@@ -395,6 +436,27 @@ class SterileNearReactor:
                    for i in range(n_l)] if include_eves else None)
             modes.append(sigma_uniformity * self._stack(ib, ev))
 
+        # Position-dependent energy scale (light collection versus radius).
+        # Unlike the efficiency field this distorts the spectrum in E as a
+        # function of L, i.e. in the same joint direction as the signal, so it
+        # is the systematic that actually limits the search.
+        if sigma_escale_uniformity > 0.0:
+            for fm in field_modes:
+                ib, ev = [], []
+                for i in range(n_l):
+                    g = float(self._c_ibd[i].sum())
+                    p3 = self._p3_bin[i]
+                    ib.append(fm[i] * (self._dR_ibd_scale @ (yld * g * p3)))
+                    if include_eves:
+                        ge = float(self._c_eves[i].sum())
+                        ev.append(fm[i] * (
+                            self._dA_eves @ (flux_w * ge * p3)
+                            + self._dA_eves_x @ (flux_w * ge * (1.0 - p3))
+                            + untagged_fraction
+                            * (self._dR_ibd_t_scale @ (yld * g * p3))))
+                modes.append(sigma_escale_uniformity
+                             * self._stack(ib, ev if include_eves else None))
+
         # -- Woodbury pieces ---------------------------------------------------
         self._V = np.array(modes)
         self._d_inv = 1.0 / np.maximum(self.asimov, 1e-9)
@@ -445,8 +507,13 @@ class SterileNearReactor:
         return [(dm2_41, f1), (dm2_41 - p.dm2_21, f2), (dm2_41 - dm2_31, f3)]
 
     def wiggle_template(self, dm2: float) -> np.ndarray:
-        """d(prediction)/d(sin^2 2theta14): the sterile deficit at s22 = 1,
-        full 3+1 -- all three Delta_i4 phases, weighted by |U_ei|^2."""
+        """d(prediction)/d(sin^2 2theta14): the sterile deficit at s22 = 1.
+
+        Full 3+1: all three Delta_i4 phases weighted by |U_ei|^2, minus the
+        (1 - P3)/2 piece of the standard theta13 disappearance that the sterile
+        mixing switches off.  The nubar_mu/nubar_tau NC channel gains what the
+        nubar_e channel loses to that second term, so it is carried too.
+        """
 
         e = self.e_nu_grid
         ib, ev = [], []
@@ -463,9 +530,17 @@ class SterileNearReactor:
                     osc += f_i * 0.5 * (1.0 - np.cos(k2 * L) * damp)
                 s2_i += ci[j] * osc
                 s2_e += ce[j] * osc
+            # 1 - (1-s14)^2 = s22/2 + O(s22^2): the standard disappearance that
+            # the sterile mixing removes.  Weighted identically to the null, so
+            # the bin-averaged P3 is exact here.
+            half_3nu = 0.5 * (1.0 - self._p3_bin[i])
+            s2_i = s2_i - half_3nu * float(ci.sum())
+            s2_e_e = s2_e - half_3nu * float(ce.sum())
             ib.append(self._R_ibd @ (self._ibd_yld * s2_i))
             if self.include_eves:
-                ev.append(self._A_eves @ (self._eves_flux * s2_e))
+                ev.append(self._A_eves @ (self._eves_flux * s2_e_e)
+                          + self._A_eves_x @ (self._eves_flux * half_3nu
+                                              * float(ce.sum())))
         return self._stack(ib, ev if self.include_eves else None)
 
     def survival_4nu(self, e_mev, L_m, dm2_41: float, s22_14: float) -> np.ndarray:

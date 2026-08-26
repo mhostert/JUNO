@@ -78,7 +78,26 @@ JUNO_MASS_KT = 20.0
 # 20 kt of LAB-based LS with a hydrogen mass fraction of 12.0%:
 #   N_p = 20e9 g * 0.120 * N_A / 1.00794 g/mol
 JUNO_HYDROGEN_MASS_FRACTION = 0.1201
+JUNO_CARBON_MASS_FRACTION = 1.0 - JUNO_HYDROGEN_MASS_FRACTION
 JUNO_TARGET_PROTONS = JUNO_MASS_KT * 1.0e9 * JUNO_HYDROGEN_MASS_FRACTION * AVOGADRO / 1.00794
+
+MOLAR_MASS_H = 1.00794
+MOLAR_MASS_C = 12.011
+
+#: Hydrogen nuclei per carbon nucleus in the LS, from the same mass fractions
+#: that fix ``JUNO_TARGET_PROTONS``.  The delivered cocktail (LAB
+#: C6H5-CnH(2n+1) plus PPO and bis-MSB, both more aromatic than LAB) has an
+#: effective H/C of 1.63, below the 1.67 of pure C18H30.
+HYDROGEN_PER_CARBON = (
+    (JUNO_HYDROGEN_MASS_FRACTION / MOLAR_MASS_H)
+    / (JUNO_CARBON_MASS_FRACTION / MOLAR_MASS_C)
+)
+
+#: Electrons per *free* (hydrogen) proton: 6 electrons per carbon and 1 per
+#: hydrogen, against the hydrogen nuclei alone.  Derived from the composition
+#: above rather than quoted, so that N_e and N_p cannot drift apart -- the
+#: E$\nu$ES/IBD channel ratio is the leading systematic of the joint fit.
+ELECTRONS_PER_FREE_PROTON = (6.0 + HYDROGEN_PER_CARBON) / HYDROGEN_PER_CARBON
 
 # IBD selection efficiency quoted in the JUNO Yellow Book (arXiv:2104.02565).
 JUNO_IBD_EFFICIENCY = 0.822

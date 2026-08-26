@@ -33,15 +33,22 @@ analysis framework, built on the measured Daya Bay antineutrino spectra, JUNO's 
 detector response, and analytic Asimov profiling over joint Gaussian nuisance modes.
 First, elastic neutrino--electron scattering (\eves) at $\sim3\times10^3$~events per day
 gives a $\sim2\%$ determination of the low-energy weak mixing angle when analysed alone
-(where the measured flux shape is the limit), and $\sigma(\sw)=1.1\times10^{-3}$
-($0.5\%$) when the $6\times10^4$ per day inverse-beta-decay (IBD) sample is used to anchor
-the flux in situ, with $5\times10^{-4}$ within reach of plausible transfer systematics.
+(where the measured flux shape is the limit), and $\sigma(\sw)=1.4\times10^{-3}$
+($0.6\%$) when the $6\times10^4$ per day inverse-beta-decay (IBD) sample is used to anchor
+the flux in situ, with $8\times10^{-4}$ within reach of plausible transfer systematics.
+JUNO's measured detector singles are included ($4.7$~Hz above $0.7$~MeV, overwhelmingly
+external $\gamma$ that stop at the $2.615$~MeV $^{208}$Tl line), and running the
+reactor off for as long as on measures them in situ, which leaves the answer intact even
+if they are thirty times larger than modelled.
 Second, for $\dm{41}\sim0.1$--$10\,\mathrm{eV^2}$ the sterile-neutrino oscillation length is
 metres, so JUNO's 33~m diameter turns the detector into a many-baseline experiment.  A
 shape-only, vertex-binned wiggle search reaches $\st{14}\approx10^{-3}$ over
-$0.2$--$3\,\mathrm{eV^2}$, an order of magnitude beyond the reactor short-baseline
-programme, with no dependence on the reactor flux normalisation or shape and with the full
-3+1 formula carried across standoffs of $50$--$1400$~m.  Third, the core's
+$0.26$--$1.1\,\mathrm{eV^2}$ and stays below $2\times10^{-3}$ from $0.13$ to
+$2.7\,\mathrm{eV^2}$, an order of magnitude beyond the reactor short-baseline programme.
+An integrated analysis of the same data with the same free flux shape has no sensitivity
+at all, so the finite detector is not an improvement on the conventional analysis but the
+only thing that makes a prior-free search possible; the full 3+1 formula is carried across
+standoffs of $50$--$1400$~m.  Third, the core's
 $\sim5\times10^{18}\,\gamma/\mathrm{s}$ produce axion-like particles (ALPs) through
 Primakoff and Compton-like conversion; with an $855\,\mathrm{m^2}$ face and 22~m mean decay
 path, JUNO covers the ``cosmological triangle'' of the ALP--photon plane in full and reaches
@@ -104,19 +111,87 @@ the IBD threshold of 1.806~MeV, so recoil spectra below $T\sim1.5$~MeV are conse
 
 \paragraph{Detector.}
 I take JUNO's fiducial target to be $N_p=1.44\times10^{33}$ free protons
-\cite{JUNO:2025gmd,JUNO:2021vlw} and $N_e=4.67N_p=6.7\times10^{33}$ electrons (LAB is
-$\sim88\%$ carbon and $12\%$ hydrogen by mass), inside a fiducial radius of $16.5$~m.  The
+\cite{JUNO:2025gmd,JUNO:2021vlw}, inside a fiducial radius of $16.5$~m.  That number is
+fixed by the delivered scintillator's hydrogen mass fraction of $12.01\%$, and the same
+composition fixes the electron count: $\mathrm{H/C}=1.63$ by number, so one carbon comes
+with $1.63$ free protons and $7.63$ electrons and $N_e=4.689N_p=6.76\times10^{33}$.  Both
+target counts are derived from that one composition rather than quoted separately, because
+the joint fit of \cref{sec:sm} measures the \eves/IBD rate ratio and $N_e/N_p$ enters its
+answer directly.  The
 response uses the released positron and electron non-linearities, an energy resolution
 $\sigma_E/E=\sqrt{a^2/E+b^2}$ with $a=3.3\%$ and $b=1.0\%$, a vertex resolution of
 $10\,\mathrm{cm}/\sqrt{E}$, a selection efficiency of $0.8$, and a reactor duty cycle of
 $0.9$.
 
-\paragraph{Statistics.}
-All sensitivities are Asimov projections \cite{Cowan:2010js} with the covariance
-$C=\mathrm{diag}(\mu)+\sum_k v_k v_k^{T}$, one unit-Gaussian mode $v_k$ per systematic.
-Fisher matrices and $\Delta\chi^2$ then follow analytically, no nuisance minimisation is
-ever performed, and the Woodbury identity keeps fine binnings cheap.  Any prediction that
-is affine in a parameter (the couplings, or $\st{14}$) is scanned by templates.
+\subsection{Statistics}
+\label{sec:stats}
+Every sensitivity in this report is an Asimov projection \cite{Cowan:2010js}, and since the
+same construction is used in all four studies it is worth writing out once.
+
+Let $\bm\theta$ be the physics parameters and $\bm\xi$ a set of nuisance parameters, each
+normalised so that it carries a unit Gaussian prior.  The predicted mean in bin $i$ is
+$\mu_i(\bm\theta,\bm\xi)$, and the likelihood is the Poisson term for the data plus the
+prior term for the pulls,
+\begin{equation}
+\chi^2(\bm\theta,\bm\xi)=\sum_i\frac{\big[n_i-\mu_i(\bm\theta,\bm\xi)\big]^2}{\mu_i}
++\sum_k\xi_k^2 .
+\label{eq:chi2pull}
+\end{equation}
+Each systematic acts on the prediction through a template, and since the pulls are small by
+construction we keep only the linear response,
+\begin{equation}
+\mu_i(\bm\theta,\bm\xi)\simeq\mu_i(\bm\theta)+\sum_k\xi_k v_{ki},
+\qquad
+v_{ki}\equiv\frac{\partial\mu_i}{\partial\xi_k}\bigg|_{\bm\xi=0},
+\label{eq:modes}
+\end{equation}
+so $v_k$ is simply the shift in the predicted spectrum produced by moving systematic $k$ by
+one standard deviation.  Building the $v_k$ is the whole modelling effort; everything after
+that is linear algebra.
+
+Profiling \cref{eq:chi2pull} over $\bm\xi$ is then a Gaussian integral, and the result is
+the familiar statement that pull terms and a covariance matrix are two descriptions of the
+same thing.  Writing $D=\mathrm{diag}(\mu)$ and $\bm\Delta=\bm n-\bm\mu(\bm\theta)$, and
+minimising over $\bm\xi$,
+\begin{equation}
+\chi^2_{\min}(\bm\theta)=\bm\Delta^{T}C^{-1}\bm\Delta,
+\qquad
+C=D+\sum_k v_kv_k^{T}=D+V^{T}V,
+\label{eq:cov}
+\end{equation}
+where $V$ is the matrix whose rows are the $v_k$.  The Poisson variance sits on the
+diagonal and every systematic adds a rank-one outer product; correlations between bins are
+carried entirely by the shapes of the $v_k$.  No nuisance is ever minimised numerically.
+
+For a projection we set the data equal to the prediction at the true point,
+$\bm n=\bm\mu(\bm\theta_0)$, which is what makes it an Asimov dataset.  Expanding
+$\bm\mu(\bm\theta)$ to first order about $\bm\theta_0$ turns \cref{eq:cov} into a quadratic
+form,
+\begin{equation}
+\Delta\chi^2(\bm\theta)=(\bm\theta-\bm\theta_0)^{T}F\,(\bm\theta-\bm\theta_0),
+\qquad
+F_{ab}=\Big(\frac{\partial\bm\mu}{\partial\theta_a}\Big)^{T}C^{-1}
+\Big(\frac{\partial\bm\mu}{\partial\theta_b}\Big),
+\label{eq:fisher}
+\end{equation}
+so the projected uncertainty on one parameter with all others profiled is
+$\sigma(\theta_a)=\sqrt{(F^{-1})_{aa}}$, and for a single parameter alone
+$\sigma(\theta)=1/\sqrt{\bm d^{T}C^{-1}\bm d}$ with $\bm d=\partial\bm\mu/\partial\theta$.
+This is the expression evaluated for $\sw$ and for $(g_V,g_A)$ in \cref{sec:sm}.
+
+Two practical points make it cheap.  First, $C$ is a diagonal matrix plus a low-rank
+correction, so the Woodbury identity
+\begin{equation}
+C^{-1}=D^{-1}-D^{-1}V^{T}\big(\mathbb{1}+VD^{-1}V^{T}\big)^{-1}VD^{-1}
+\label{eq:woodbury}
+\end{equation}
+replaces the inversion of an $N_{\rm bins}\times N_{\rm bins}$ matrix by that of an
+$N_{\rm modes}\times N_{\rm modes}$ one.  With $50$~keV binning and a few tens of modes this
+is the difference between a scan that runs in seconds and one that does not run at all, and
+it is what allows the sterile analysis of \cref{sec:sterile} to leave one unconstrained mode
+free per energy bin.  Second, whenever the prediction is affine in a parameter, as it is in
+the couplings and in $\st{14}$, the templates are built once and every point of a scan is an
+algebraic combination of them rather than a re-evaluation of the physics.
 
 \subsection{When does the near reactor pile up?}
 \label{sec:pileup}
@@ -125,22 +200,44 @@ A reactor at tens of metres produces IBD at roughly $1$~Hz per $10\,\mathrm{MW}$
 event being a prompt hit followed by a delayed neutron capture about $200\,\mu$s later.
 Three distinct pile-up questions arise, and they have very different thresholds.
 
-\emph{(i) Accidental IBD-like coincidences.}  JUNO's radioactivity singles above
-$\sim0.7$~MeV run at $\sim10^4$~Hz \cite{JUNO:2021vlw}, and the reactor adds delayed
-neutron captures at $R_{\rm IBD}$.  Random pairings of a radioactivity single with a
-reactor neutron inside JUNO's coincidence window and $1.5$~m distance cut are accidental
-IBD candidates.  Both the accidental rate and the true IBD rate scale linearly with the
-reactor, so their \emph{ratio} is a constant set by JUNO's own singles.  Scaling JUNO's
-measured accidental-to-IBD ratio ($0.9$ versus $47$ per day in the 59-day release
-\cite{JUNO:2025gmd}) gives about $2\%$ accidentals at every power and distance
-($1.1\times10^3$ against $6.0\times10^4$ per day at $10\,\mathrm{MW}$ and $50$~m).  This is
-a background one \emph{measures} from off-window sidebands, not a pile-up limit.
+\emph{(i) Accidental IBD-like coincidences.}  JUNO's measured fiducial singles above
+$0.7$~MeV run at $R_{\rm sing}=4.7$~Hz \cite{JUNO:2026ixk} (\cref{sec:singles}), and the
+reactor adds delayed neutron captures at $R_{\rm IBD}$.  A random pairing of one of each
+inside the coincidence window $\tau$ and the $1.5$~m distance cut is an accidental IBD
+candidate, at a rate
+\begin{equation}
+R_{\rm acc}\simeq R_{\rm sing}\,R_{\rm IBD}\,\tau\,f_{\rm vol},
+\qquad f_{\rm vol}\sim\Big(\frac{1.5\ \mathrm{m}}{R_{\rm fid}}\Big)^{3},
+\label{eq:accidental}
+\end{equation}
+Both $R_{\rm acc}$ and the true rate $R_{\rm IBD}$ scale linearly with reactor power, so
+their ratio,
+\begin{equation}
+\frac{R_{\rm acc}}{R_{\rm IBD}}\simeq R_{\rm sing}\,\tau\,f_{\rm vol},
+\label{eq:accratio}
+\end{equation}
+is independent of power and distance altogether and is fixed by JUNO's own singles rate
+rather than by the source.  With $\tau=1$~ms and $R_{\rm fid}=16.5$~m this is
+$3.5\times10^{-6}$: $0.21$ against $6.0\times10^4$ events per day at $10\,\mathrm{MW}$ and
+$50$~m.  Note that this is a different mechanism from the accidentals JUNO already
+subtracts, which pair two \emph{singles} ($0.049$ per day in the 59-day release
+\cite{JUNO:2025gmd}) and do not scale with any reactor at all; the near reactor adds a
+term that is negligible next to it.  Either way this is a background one \emph{measures}
+from off-window sidebands, not a pile-up limit.
 
 \emph{(ii) Genuine IBD self-pile-up.}  Two reactor IBDs within one coincidence window
-($\sim1$~ms) confuse the prompt--delayed pairing.  The probability is
-$1-e^{-R_{\rm IBD}\tau}$: $7\times10^{-4}$ at $10\,\mathrm{MW}$ and $50$~m, $0.7\%$ at
-$100\,\mathrm{MW}$ and $50$~m, $6.7\%$ at $1\,\mathrm{GW}$ and $50$~m.  This is the operative
-boundary.  Requiring less than $1\%$ self-pile-up limits the source to
+($\tau\sim1$~ms) confuse the prompt-to-delayed pairing.  Since the events are Poisson in
+time, the probability that a given IBD is accompanied by at least one more within $\tau$ is
+\begin{equation}
+P_{\rm pile}=1-e^{-R_{\rm IBD}\tau}\simeq R_{\rm IBD}\,\tau
+\qquad(R_{\rm IBD}\tau\ll1),
+\label{eq:selfpile}
+\end{equation}
+and this one does \emph{not} cancel: it grows linearly with the source.  Numerically it is
+$7\times10^{-4}$ at $10\,\mathrm{MW}$ and $50$~m, $0.7\%$ at $100\,\mathrm{MW}$, and $6.7\%$
+at $1\,\mathrm{GW}$.  This is therefore the operative boundary.  Writing
+$R_{\rm IBD}\propto P/D^{2}$ and imposing $P_{\rm pile}<1\%$ gives a condition on the source
+strength alone,
 \begin{equation}
     \frac{P}{D^2}\lesssim 0.06\,\mathrm{MW\,m^{-2}}, \qquad\text{i.e.}\qquad
     P\lesssim 150\,\mathrm{MW}\left(\frac{D}{50\,\mathrm{m}}\right)^2,
@@ -172,34 +269,75 @@ by rate.
 \label{sec:sm}
 
 \subsection{Cross sections and rates}
-The \eves{} cross section for $\bar\nu_\alpha e\to\bar\nu_\alpha e$ is
+The observable is elastic scattering off atomic electrons, so it is worth setting up the
+couplings carefully: the whole measurement is a statement about them.  Below the $W$ and
+$Z$ masses the interaction is a four-fermion contact term, and for
+$\nu_\alpha e\to\nu_\alpha e$ two diagrams contribute.  Every flavour has the neutral
+current,
+\begin{equation}
+\mathcal{L}_{\rm NC}=-\frac{G_F}{\sqrt2}
+\big[\bar\nu_\alpha\gamma^\mu(1-\gamma_5)\nu_\alpha\big]
+\big[\bar e\gamma_\mu(g_V-g_A\gamma_5)e\big],
+\qquad g_V=2\sw-\tfrac12,\quad g_A=-\tfrac12 ,
+\label{eq:lnc_eves}
+\end{equation}
+while for $\alpha=e$ alone there is in addition the charged current, in which the
+$W$ is exchanged between the $\nu_e$ and the electron.  A Fierz rearrangement turns that
+charged-current term into the same $(V-A)\times(V-A)$ structure as \cref{eq:lnc_eves} with
+unit couplings, so the two simply add and the effect of the charged current is the shift
+\begin{equation}
+C_V=g_V+\delta_{\alpha e},\qquad C_A=g_A+\delta_{\alpha e} .
+\label{eq:cvca}
+\end{equation}
+This is why $\nu_e$ and $\bar\nu_e$ scatter so differently from $\nu_{\mu,\tau}$, and why a
+reactor experiment measuring $\bar\nu_e e$ is sensitive to a combination of couplings
+different from the one an accelerator $\nu_\mu e$ experiment measures.
+
+It is convenient to move to chiral couplings, $C_{L,R}=\tfrac12(C_V\pm C_A)$ for neutrinos,
+because then the two helicity configurations contribute incoherently and the differential
+cross section takes its standard form.  For antineutrinos the roles of $L$ and $R$
+interchange, $C_{L,R}=\tfrac12(C_V\mp C_A)$, and
 \begin{equation}
 \frac{d\sigma}{dT}=\frac{2G_F^2m_e}{\pi}\Big[C_L^2+C_R^2\Big(1-\frac{T}{E}\Big)^2
--C_LC_R\frac{m_eT}{E^2}\Big],\qquad
-C_{L,R}=\tfrac12(C_V\mp C_A)\ \text{(antineutrino)},
+-C_LC_R\frac{m_eT}{E^2}\Big].
+\label{eq:dsdT}
 \end{equation}
-with $C_V=g_V+\delta_{\alpha e}$, $C_A=g_A+\delta_{\alpha e}$ and the neutral-current
-couplings $g_V=2\sw-\tfrac12$, $g_A=-\tfrac12$ at tree level.  The reference point used
-throughout is the PDG 2024 world average of the $\nu$--$e$ couplings, $g_V=-0.040$ and
+The three terms have clean interpretations.  The first is helicity-conserving scattering,
+isotropic in the centre of mass and therefore flat in $T$.  The second is
+helicity-flipping, suppressed by the $(1-T/E)^2$ factor that vanishes at the kinematic
+endpoint.  The third is the interference of the two, suppressed by $m_eT/E^2$ and
+negligible at reactor energies.  The kinematic limit follows from two-body kinematics,
+\begin{equation}
+T_{\max}=\frac{2E^2}{m_e+2E},
+\label{eq:tmax}
+\end{equation}
+which for $E=4$~MeV gives $T_{\max}=3.76$~MeV: the recoil takes almost the whole neutrino
+energy, so the $T>1$~MeV analysis window would reach down to $E_\nu=1.21$~MeV, below the
+IBD threshold at which the measured flux stops.  The reference point used throughout is the PDG 2024 world average of the $\nu$--$e$ couplings, $g_V=-0.040$ and
 $g_A=-0.507$ \cite{ParticleDataGroup:2024cfk}, which coincides with the radiatively
 corrected SM prediction ($-0.0395$, $-0.5063$ \cite{Erler:2004in}) and corresponds to an
 effective low-energy $\sw=(g_V+\tfrac12)/2=0.230$; sensitivities are quoted as errors on
 that effective $\sw$.  Cross sections come from \textsc{Neptune} \cite{NEPTUNE}, and the
-parametric $(g_V,g_A)$ implementation used for the scans reproduces it to
-$3\times10^{-16}$ at \textsc{Neptune}'s own tree-level couplings ($\sw=0.2223$,
-$g_A=-\tfrac12$).  \Cref{fig:xsec} compares the cross sections per LAB ``molecule'', and
-\cref{fig:dsdt} shows the recoil shapes at fixed $E_\nu$.  LAB is
-C$_6$H$_5$C$_n$H$_{2n+1}$ with $n\approx12$, i.e.\ C$_{18}$H$_{30}$ or one CH$_{1.67}$
-unit per carbon: one carbon nucleus, $1.67$ free protons and $7.67$ electrons, which is
-the stoichiometry behind $N_e=4.67N_p$.  (I also evaluated the trident channel $\bar\nu_eN\to\bar\nu_ee^+e^-N$ with
+parametric $(g_V,g_A)$ implementation used for the scans reproduces its recoil shape to
+machine precision at \textsc{Neptune}'s own tree-level couplings ($\sw=0.2223$,
+$g_A=-\tfrac12$).  The absolute normalisation uses
+$(\hbar c)^2=3.8938\times10^{-28}\,\mathrm{GeV^2\,cm^2}$: a shift of this constant is a
+shift of the \eves{} rate, and under the IBD anchor of \cref{sec:results} a $0.7\%$ one
+would move $\sw$ by $1.4\times10^{-3}$, which is the whole error budget.  \Cref{fig:xsec} compares the cross sections per carbon of LAB, and
+\cref{fig:dsdt} shows the recoil shapes at fixed $E_\nu$.  The unit is the CH$_{1.63}$ of
+\cref{sec:framework}: one carbon nucleus, $1.63$ free protons and $7.63$ electrons.  (I also evaluated the trident channel $\bar\nu_eN\to\bar\nu_ee^+e^-N$ with
 \textsc{Neptune}, coherently on carbon and elastically on the free protons: at reactor
 energies it is $O(\alpha)$ and phase-space suppressed above its $1.02$~MeV threshold and
 amounts to $\sim10^{-5}$ of the \eves{} rate, $0.04$ events per day at $10\,\mathrm{MW}$
 and 50~m, so it is not carried further.)  Four features drive the analysis.  IBD is $\sim100\times$ larger per
-molecule than $\bar\nu_e e$ even after the $7.67$ electrons are counted, which is why the
-IBD sample is $20\times$ the \eves{} one.  The antineutrino cross section lies \emph{below}
-the neutrino one because the CC and NC amplitudes interfere destructively ($C_L=\tfrac12
-(C_V-C_A)$ is small for $\bar\nu_e$).  The NC-only $\bar\nu_{\mu,\tau}$ channel is a
+molecule than $\bar\nu_e e$ even after the $7.63$ electrons are counted, which is why the
+IBD sample is $20\times$ the \eves{} one.  The antineutrino cross section lies \emph{below} the neutrino one for two reasons that
+are worth keeping apart.  The charged current shifts $C_V$ and $C_A$ by the same $+1$, so
+it enhances the flat $C_L^2$ term for $\nu_e$ but the phase-space-suppressed
+$C_R^2(1-T/E)^2$ term for $\bar\nu_e$, whose flat coupling
+$C_L=\tfrac12(C_V-C_A)=\sw$ is left untouched and is small.  On top of that the CC--NC
+interference is genuinely destructive for $\bar\nu_e$: adding the pure-NC and pure-CC
+rates would give $0.412$ in units where the full answer is $0.231$.  The NC-only $\bar\nu_{\mu,\tau}$ channel is a
 further factor $\sim3$ down; it is irrelevant at 50~m but carried anyway.  And the $T>1$~MeV
 window removes about $60\%$ of the $\bar\nu_e e$ rate at $E_\nu=3$~MeV, less at higher
 energy.  The $\bar\nu_e$ recoil spectrum is flat and then falls in $T$ (the $C_R^2(1-T/E)^2$
@@ -208,8 +346,8 @@ the $\sw$ information once the normalisation is free.
 
 \begin{figure}[t]\centering
 \includegraphics[width=\textwidth]{nb5_cross_sections}
-\caption{Cross sections per LAB molecule (one CH$_{1.67}$ unit: 1 carbon, 1.67
-free protons, 7.67 electrons): \eves{} for $\bar\nu_e$/$\nu_e$ (CC+NC) and
+\caption{Cross sections per carbon of LAB (one CH$_{1.63}$ unit: 1 carbon, 1.63
+free protons, 7.63 electrons): \eves{} for $\bar\nu_e$/$\nu_e$ (CC+NC) and
 $\bar\nu_{\mu,\tau}$/$\nu_{\mu,\tau}$ (NC), the $\bar\nu_e e$ rate restricted to the
 $T>1$~MeV analysis window, and IBD on the free protons \cite{Vogel:1999zy}.}
 \label{fig:xsec}
@@ -221,8 +359,9 @@ channels; the antineutrino--neutrino difference is the CC--NC interference.}
 \label{fig:dsdt}
 \end{figure}
 
-The flavour composition is exact: the $\bar\nu_{\mu,\tau}$ component from $1-P_{ee}$
-($6\times10^{-4}$ at 50~m) is carried with its NC-only cross section.  An electron only
+The flavour composition is exact at every baseline, here and in \cref{sec:sterile}: the
+$\bar\nu_{\mu,\tau}$ component from $1-P_{ee}$ ($6\times10^{-4}$ at 50~m, $6\%$ at
+$1.4$~km) is carried with its NC-only cross section.  An electron only
 participates for $T$ above its binding energy (carbon K~284~eV, L~19/11~eV, hydrogen
 13.6~eV); this atomic-binding correction \cite{Kopeikin:2003bx} is applied to every
 spectrum and is exactly unity above 1~keV, so it is completely negligible for the analysis
@@ -230,86 +369,503 @@ window $T\in[1,6.5]$~MeV.
 
 The resulting rates for $10\,\mathrm{MW}$ at $50$~m are $5.95\times10^4$ IBD per day
 ($\sim1700\times$ the far reactors) and $3.2\times10^3$ \eves{} per day in the analysis
-window, $99.99\%$ of them $\bar\nu_e$.  \Cref{fig:eves_fake} shows the recoil spectrum with
-the backgrounds I model: IBD singles (untagged-neutron fraction $1\%$, $577$ per day,
-measurable in situ from the $99\%$-tagged sample), solar neutrinos ($^8$B, hep and CNO
-continua plus the pep line \cite{Bahcall:1996qv,Vinyoles:2016djt}, LMA flavour-weighted,
-182 per day live-equivalent).  Radioactivity and cosmogenic singles are \emph{not}
-modelled and would dominate below $\sim3$~MeV, so the precisions below are reactor-limited
-ones.
+window, $99.99\%$ of them $\bar\nu_e$.  Because the flux stops at the IBD threshold and
+$T_{\max}(1.806\,\mathrm{MeV})=1.58$~MeV, $48\%$ of that \eves{} rate sits in a part of the
+window the flux model cannot fill; the quoted rate is therefore a lower bound there, and
+the model carries an artificial edge at $1.58$~MeV.  It costs nothing: closing the window
+at $T>1.6$~MeV instead of $T>1$~MeV moves $\sigma(\sw)$ from $0.137$ to $0.138$, because
+what the joint fit measures is a rate ratio in which both channels share the same flux.
+\Cref{fig:eves_fake} shows the recoil spectrum with the backgrounds I model: IBD singles
+(untagged-neutron fraction $1\%$, $577$ per day, measurable in situ from the $99\%$-tagged
+sample), solar neutrinos ($^8$B, hep and CNO continua plus the pep line
+\cite{Bahcall:1996qv,Vinyoles:2016djt}, LMA flavour-weighted, 164 per calendar day), and
+the detector's own singles, which dominate everything else and are the subject of
+\cref{sec:singles}.
 
 \begin{figure}[t]\centering
 \includegraphics[width=\textwidth]{nb5_eves_fake_data}
 \caption{Asimov \eves{} recoil spectrum with the modelled backgrounds, per calendar year
-at $90\%$ duty, for $10\,\mathrm{MW}$ at $50$~m ($\approx1.0\times10^6$ signal,
-$1.9\times10^5$ IBD singles and $6\times10^4$ solar events per year in the window).}
+at $90\%$ duty, for $10\,\mathrm{MW}$ at $50$~m ($\approx1.1\times10^6$ signal,
+$1.9\times10^5$ IBD singles, $6\times10^4$ solar, $4.5\times10^7$ detector-singles and
+$1.4\times10^3$ $^{13}$C NC events per year in the window).}
 \label{fig:eves_fake}
 \end{figure}
 
+\subsection{Detector singles, and the reactor-off measurement}
+\label{sec:singles}
+The dominant single-hit background is not the reactor but JUNO itself, and two recent
+measurements pin it down.  The final radioactivity assessment \cite{JUNO:2026ixk}
+reports, from first data, a fiducial singles rate of $4.7$~Hz above $0.7$~MeV for
+$R<17.2$~m, better than the $7.2$~Hz design budget.  The delivered scintillator has
+U/Th $\lesssim3.4\times10^{-17}$~g/g, some $30\times$ purer than the $10^{-15}$
+requirement, so the internal component collapses to $\lesssim0.1$~Hz and \emph{$\sim95\%$
+of the fiducial singles are external $\gamma$} from the acrylic vessel, the PMT glass and
+the steel truss.  On the solar side \cite{Gavrikov:2025rlg} the same backgrounds set
+JUNO's own $^8$B threshold at 2~MeV, through cosmogenic $^{11}$C.
+
+The spectral consequence is what makes the measurement possible (\cref{fig:singles}).  An
+external $\gamma$ can deposit at most its own line energy, so the external component
+\emph{stops at the $2.615$~MeV $^{208}$Tl line}.  An internal decay contains its whole
+cascade, so internal $^{208}$Tl reaches $5.0$~MeV, but only at $\sim84$ decays per day
+in 20~kt at the measured purity.  Across the $2.6$~MeV wall the singles fall by three
+orders of magnitude, from $3.6\times10^4$ per day in $2$--$3$~MeV to $26$ per day in
+$3$--$4$~MeV, and the signal-to-background turns over from $0.02$ to $9$.
+
+\begin{figure}[t]\centering
+\includegraphics[width=\textwidth]{nb5_singles}
+\caption{Detector singles by component against the \eves{} signal at $R=16.5$~m.  The
+external $\gamma$ component ends at the $^{208}$Tl line; above it only internal $^{208}$Tl
+(full $5.0$~MeV cascade), the cosmogenics and the $^{13}$C lines survive.  The
+reactor-driven $^{13}$C NC line at $3.685$~MeV clears the wall by a megaelectronvolt.}
+\label{fig:singles}
+\end{figure}
+
+I model this in \texttt{reactor/singles.py}: external $\gamma$ from a composite line list
+with Compton continua, internal decays from the \emph{measured} concentrations (so
+$^{214}$Bi runs at $\sim730$ and $^{208}$Tl at $\sim84$ per day in 20~kt), and the
+cosmogenic isotopes $^{11}$C, $^{10}$C, $^{11}$Be, $^{12}$B, $^{6}$He, $^{8}$Li and
+$^{9}$Li with a JUNO-like veto suite.  The \emph{rate} is anchored to the measurement, but
+the \emph{shape} is a component model rather than a transport simulation, the radial
+profile is an effective exponential tuned to their Fig.~6 rather than a $\gamma$
+attenuation length (their own reconstruction systematic on the FV singles is
+$20$--$30\%$), and the cosmogenic rates are depth-scaled estimates good to a factor of a
+few.  These numbers should not be taken at face value, so the analysis is built not to
+depend on them.
+
+\paragraph{Turning the reactor off.}
+A parked research reactor can be switched off; the singles cannot.  A reactor-off run
+therefore measures the entire non-reactor background in situ, bin by bin, with no model at
+all, and it is worth working through what that is worth, because the answer is what protects
+everything above from the provisional rates.
+
+Take one bin and split the reactor-on prediction into three pieces: the signal $S$, the
+reactor-correlated background $R$ (the untagged IBD positrons), and the non-reactor
+background $B$ (singles, solar, and the solar $^{13}$C of \cref{sec:c13}).  Running for a
+time $t$ with the reactor on and $rt$ with it off gives two measurements,
+\begin{equation}
+\langle N^{\rm on}\rangle=(S+R+B)\,t,
+\qquad
+\langle N^{\rm off}\rangle=B\,rt,
+\label{eq:onoffmeans}
+\end{equation}
+and we now treat $B$ as a completely free parameter, one per bin, with no prior whatsoever.
+That is the crucial modelling choice.  We are not assuming the singles level, and we are not
+assuming their spectral shape either, since a free normalisation in every bin subsumes any
+distortion one could write down.
+
+Let $\delta$ be a shift of $B$ away from its nominal value.  It moves the on-prediction by
+$\delta t$ and the off-prediction by $\delta rt$, so with $x$ and $y$ the residuals of the
+two measurements and $V_{\rm on}=(S+R+B)t$, $V_{\rm off}=Brt$ their variances,
+\begin{equation}
+\chi^2(\delta)=\frac{(x-\delta t)^2}{V_{\rm on}}+\frac{(y-\delta rt)^2}{V_{\rm off}} .
+\label{eq:onoffchi2}
+\end{equation}
+Setting $\partial\chi^2/\partial\delta=0$ gives
+\begin{equation}
+\hat\delta\,t=\frac{x/V_{\rm on}+r\,y/V_{\rm off}}{1/V_{\rm on}+r^{2}/V_{\rm off}},
+\label{eq:deltahat}
+\end{equation}
+and substituting back collapses the two terms into one,
+\begin{equation}
+\chi^2_{\min}=\frac{\big(x-y/r\big)^2}{V_{\rm on}+V_{\rm off}/r^{2}} .
+\label{eq:onoffprofiled}
+\end{equation}
+The numerator is exactly the subtracted estimator one would have written down by hand, the
+off-sample scaled by $1/r$ to match the on-exposure, and the denominator is its variance.
+Writing that variance out,
+\begin{equation}
+V_{\rm on}+\frac{V_{\rm off}}{r^{2}}
+=(S+R+B)\,t+\frac{B\,rt}{r^{2}}
+=\Big[S+R+B\Big(1+\frac1r\Big)\Big]t .
+\label{eq:onoff}
+\end{equation}
+So profiling a free per-bin background is not merely tractable, it is a one-line change to
+the analysis: every background normalisation systematic disappears and the Poisson term is
+inflated by $B/r$.  That is how it is implemented, as an inflation of the diagonal $D$ in
+\cref{eq:cov} rather than as $N_{\rm bins}$ extra modes, which keeps $C$ numerically well
+conditioned even when $B$ exceeds $S$ by two orders of magnitude.
+
+Three things follow directly from \cref{eq:onoff}.  Equal on and off exposure, $r=1$, gives
+the familiar factor of two, $\mathrm{Var}=S+R+2B$.  The result depends on the singles only
+through $\sqrt{B}$, never through their assumed level or shape, which is exactly the
+protection needed given how provisional those rates are.  And the limit $r\to0$ diverges,
+as it must: with no off-sample and a free background in every bin, the signal is perfectly
+degenerate with $B$ and there is no measurement at all.  A short off-run is therefore
+worse than none: it inflates the variance by $B/r$ while buying almost no sample, and a
+$2\%$-length off-run costs $45\%$ on the joint fit.  ``No off-run'' is a different
+analysis rather than the $r\to0$ limit of this one --- there the singles \emph{shape}
+comes from the model of \cref{sec:singles} and only its normalisation is profiled, which
+gives $0.135$ against $0.137$ at $r=1$ --- and any number quoted that way is a statement
+about how far one trusts a background simulation, not a statement about data.
+
+The price of $r=1$ is calendar time, since half the wall clock is spent with the reactor
+off and a given $\MWyr$ takes twice as long to deliver.  That is also what makes $r=1$ the
+right choice rather than merely an adequate one: at fixed \emph{calendar} time the live
+exposure is $\propto1/(1+r)$, so minimising $(1+r)\big[S+R+B(1+1/r)\big]$ gives
+\begin{equation}
+r_{\rm opt}=\sqrt{\frac{B}{S+R+B}}\;\longrightarrow\;1 \quad (B\gg S),
+\label{eq:ropt}
+\end{equation}
+and $B\simeq1.2\times10^5$ per day against $S\simeq3.2\times10^3$ puts this measurement
+firmly in that limit.  \Cref{fig:onoff} shows what the off-run buys, and \cref{tab:onoff}
+that it works.
+
+\begin{figure}[t]\centering
+\includegraphics[width=\textwidth]{nb5_onoff}
+\caption{$\sigma(\sw)$ against the reactor-off exposure ratio at $30\,\MWyr$.  Equal on/off
+running ($r=1$) is within $2\%$ of the $r\to\infty$ asymptote and is the optimum at fixed
+calendar time, \cref{eq:ropt}; a $2\%$-length off-run costs $45\%$ on the joint fit.  The
+horizontal line is the separate analysis in which there is no off-run at all and the
+singles shape is taken from the model.}
+\label{fig:onoff}
+\end{figure}
+
+\begin{table}[t]\centering
+\begin{tabular}{lccc}\toprule
+singles rate assumed & rate [day$^{-1}$] & \eves{}-only & joint\\\midrule
+none & $0$ & $0.474$ & $0.120$\\
+$0.1\times$ nominal & $1.2\times10^4$ & $0.492$ & $0.130$\\
+nominal (as modelled) & $1.2\times10^5$ & $0.504$ & $0.137$\\
+$3\times$ nominal & $3.7\times10^5$ & $0.510$ & $0.144$\\
+$10\times$ nominal & $1.2\times10^6$ & $0.520$ & $0.159$\\
+$30\times$ nominal & $3.7\times10^6$ & $0.535$ & $0.193$\\
+\bottomrule\end{tabular}
+\caption{Robustness of $10^2\,\sigma(\sw)$ at $30\,\MWyr$ to the assumed singles level,
+with equal reactor-on and reactor-off exposure.  A background $30\times$ larger than
+modelled costs $41\%$; this is the payoff of measuring it rather than predicting it.}
+\label{tab:onoff}
+\end{table}
+
+Two more things follow.  The answer is remarkably insensitive to the singles level
+(\cref{tab:onoff}): $10\times$ the background costs $16\%$ and $30\times$ costs $41\%$.
+And the fiducial radius barely matters: $\sigma(\sw)$ moves only from $0.134$ to $0.139$
+between $R=15.5$ and $17.0$~m while the singles rate inside the cut moves by a factor of
+six, because the reactor-off subtraction, not the cut, is doing the work.  I therefore
+keep the $R=16.5$~m of the rest of this report rather than optimising a cut against
+provisional rates.
+
+\subsection{Neutrino interactions on $^{13}$C}
+\label{sec:c13}
+Natural carbon is $1.1\%$ $^{13}$C by atom, so the scintillator holds $\sim210$~t of it,
+$9.7\times10^{30}$ nuclei, the target JUNO uses for its model-independent $^8$B measurement
+\cite{Gavrikov:2025rlg}.  Both channels land in the single-hit window, and they behave very
+differently here.
+
+\paragraph{The neutral current is purely isovector axial.}
+At the quark level the neutral current is
+\begin{equation}
+\mathcal{L}_{\rm NC}=-\frac{G_F}{\sqrt2}\,
+\big[\bar\nu\gamma^\mu(1-\gamma_5)\nu\big]
+\sum_q\bar q\gamma_\mu\big(g_V^q-g_A^q\gamma_5\big)q,
+\label{eq:lnc}
+\end{equation}
+with $g_V^u=\tfrac12-\tfrac43 s_W^2$, $g_A^u=+\tfrac12$, $g_V^d=-\tfrac12+\tfrac23 s_W^2$
+and $g_A^d=-\tfrac12$, $s_W^2\equiv\sw$.  Rearranged into isospin components this is the
+familiar statement
+\begin{equation}
+J_\mu^{Z}=J_\mu^{3}-2s_W^2\,J_\mu^{\rm em},
+\qquad J_\mu^{3}=V_\mu^{3}-A_\mu^{3},
+\label{eq:jz}
+\end{equation}
+and because the electromagnetic current is purely vector, \emph{the entire axial part of the
+neutral current is $-A_\mu^{3}$, the third isospin component of the axial current, carrying
+coefficient exactly unity and no $s_W^2$ whatsoever}.  Only the vector part is mixed and
+$s_W^2$-suppressed.  At the nucleon level, in the non-relativistic limit, the space
+components of $A^3_\mu$ reduce to
+\begin{equation}
+A^{3}_{k}\;\longrightarrow\;\frac{g_A}{2}\sum_i\sigma_{k,i}\,\tau^3_i
+\;+\;\frac{\Delta s}{2}\sum_i\sigma_{k,i},
+\label{eq:a3}
+\end{equation}
+an isovector spin operator with coefficient $g_A=1.2754$ and an isoscalar one carried by
+the strange-quark spin, $\Delta s\approx-0.08$, an order of magnitude smaller.
+
+Now the transition does the rest of the work.  The $^{13}$C ground state is $J^\pi=1/2^-$
+and the excited level is $3/2^-$: $\Delta J=1$ with no parity change.  The leading
+(allowed) operator of the \emph{vector} current is the Fermi charge operator
+$\sum_i\tau^3_i$, which is $\Delta J=0$ and therefore cannot connect the two states at all;
+the vector current enters only through weak magnetism, $\propto\mu_V\,\bm\sigma\times\bm q/2M_N$,
+suppressed by $q/2M_N\sim10^{-3}$ at these energies.  The leading operator of the
+\emph{axial} current is precisely the $\Delta J=1$ spin operator of \cref{eq:a3}.  So the
+line strength is
+\begin{equation}
+\sigma_{\rm NC}(E_\nu)=\frac{G_F^2}{\pi}\,(E_\nu-E_x)^2\,\frac{g_A^2}{4}\,B({\rm GT}^0)
+\Big[1+\mathcal{O}\big(q/M_N,\ \Delta s/g_A\big)\Big],
+\qquad
+B({\rm GT}^0)\equiv\frac{\big|\langle f\|\sum_i\sigma_i\tau^3_i\|i\rangle\big|^2}{2J_i+1},
+\label{eq:signc}
+\end{equation}
+with $E_x=3.685$~MeV and the $(E_\nu-E_x)^2$ from the phase space of the outgoing massless
+neutrino.  The $1/4$ is the $\tau^3/2$ normalisation of the isospin current.
+
+Two consequences are worth stating plainly.  First, \emph{the line carries no leading
+dependence on $\sw$ at all}: it measures $g_A^2 B({\rm GT}^0)$, the isovector axial
+strength.  It is therefore not a second weak-mixing-angle measurement but a genuinely
+different observable, sensitive to the hadronic axial current where \eves{} is sensitive to
+the electron couplings, and to any new physics that touches quark neutral currents without
+touching electrons.  Second, the same isovector spin operator governs the $M1$ strength of
+the $3.685$~MeV level, so $B({\rm GT}^0)$ is constrained by nuclear data rather than being a
+free parameter.
+
+\paragraph{Why the isoscalar axial current is so much harder.}
+It is worth spelling out what the neutral current does \emph{not} contain.  In
+\cref{eq:lnc} the axial couplings satisfy $g_A^u=-g_A^d=+\tfrac12$, so the up and down
+isoscalar axial contributions cancel identically and, within $u,d,s$,
+\begin{equation}
+A_\mu^{Z}=\tfrac12\big(\bar u\gamma_\mu\gamma_5u-\bar d\gamma_\mu\gamma_5 d\big)
+-\tfrac12\,\bar s\gamma_\mu\gamma_5 s
+\;\longrightarrow\;
+\tfrac12 g_A\,\tau^3\;-\;\tfrac12\Delta s ,
+\label{eq:isoscalar}
+\end{equation}
+so the entire isoscalar axial piece is carried by the strange-quark spin.  That makes it a
+clean probe of $\Delta s\approx-0.08$, and hence of the proton spin decomposition, but it
+also makes it small: $\Delta s/g_A\approx1/16$.
+
+There are only two ways to get at it, and neither survives reactor energies.  One can
+isolate it with a transition that the isovector operator cannot drive at all, namely
+$T=0\to T=0$ with $\Delta J=1$ in a self-conjugate nucleus, since $\tau^3$ is an isovector
+and cannot connect two $T=0$ states.  The textbook case is the $12.71$~MeV $1^+,T=0$ level
+of $^{12}$C, measured against the isovector $15.11$~MeV $1^+,T=1$ level.  But the rate then
+costs $(\Delta s/g_A)^2\approx4\times10^{-3}$, and $12.71$~MeV sits above the reactor
+endpoint of $\sim10$~MeV in any case; the low-lying $T=0\to T=0$ alternatives
+($^{6}$Li at $4.31$~MeV, $^{10}$B at $3.59$~MeV) are either particle-unbound or present in
+far too small a quantity.  The alternative is to let the isoscalar amplitude
+\emph{interfere} with the isovector one, which buys linear rather than quadratic
+sensitivity but requires both to reach the same final state, i.e.\ a free nucleon.  That is
+elastic $\nu p\to\nu p$, the BNL~E734 measurement.  At reactor energies the proton recoil is
+$T_p=2E_\nu^2/M_p\lesssim0.14$~MeV, quenched to $\sim10$~keV of visible energy in
+scintillator, far below any threshold.  The isoscalar axial current is therefore out of
+reach here, and the $^{13}$C line remains an isovector measurement.
+
+\paragraph{The charged current is neutrino-only, and empirically normalised.}
+For $\nu_e+{}^{13}\mathrm{C}\to e^-+{}^{13}\mathrm{N}$(g.s.) the allowed cross section is
+\begin{equation}
+\sigma_{\rm CC}(E_\nu)=\frac{G_F^2\cos^2\theta_C}{\pi}\,p_eE_e\,F(Z{=}7,E_e)
+\big[B(\mathrm{F})+g_A^2B(\mathrm{GT})\big],\qquad E_e=E_\nu-Q+m_e,
+\label{eq:sigcc}
+\end{equation}
+with $E_e$ the total electron energy and $Q=2.22$~MeV the threshold, which is just the
+$^{13}$N--$^{13}$C atomic mass difference, the electron created and the one shed by the
+change in $Z$ cancelling.  Here $^{13}$N(g.s.) is the isobaric analog of $^{13}$C(g.s.) (a $T=1/2$
+doublet with $T_3=\pm1/2$), so the Fermi matrix element is unquenched, $B(\mathrm{F})=1$,
+and the combination $B(\mathrm{F})+g_A^2B(\mathrm{GT})$ is fixed directly by the measured
+$ft$ value of the mirror $^{13}\mathrm{N}\to{}^{13}\mathrm{C}\,e^+\nu_e$ decay.  The CC
+cross section is thus known without a nuclear model.
+
+Crucially this channel needs a \emph{neutrino}.  The antineutrino partner is
+$\bar\nu_e+{}^{13}\mathrm{C}\to e^++{}^{13}\mathrm{B}$, and its threshold follows from the
+nuclear masses: the atomic mass excesses give
+$\Delta M_{\rm at}=16.562-3.125=13.437$~MeV, converting to nuclear masses adds one electron
+mass since $Z$ drops from $6$ to $5$, and creating the positron costs another, so
+\begin{equation}
+E_{\rm th}=\big[M_{\rm nuc}({}^{13}\mathrm{B})-M_{\rm nuc}({}^{13}\mathrm{C})\big]+m_e
+=\Delta M_{\rm at}+2m_e=14.46\ \mathrm{MeV}.
+\label{eq:13Bthreshold}
+\end{equation}
+That is half again the reactor endpoint of $\sim10$~MeV, so the reactor contributes nothing
+to it and the CC channel is a purely solar background, tagged besides by the $863$~s
+$^{13}$N $\beta^+$ coincidence.
+The neutral current, by contrast, is flavour blind and identical for neutrinos and
+antineutrinos, so \emph{the reactor antineutrinos excite it}.  The level lies below the
+$4.946$~MeV neutron separation energy, so it is particle bound and de-excites by a single
+$3.685$~MeV $\gamma$: a monoenergetic line, $73$~keV wide at JUNO's resolution, landing a
+full MeV above the $2.615$~MeV wall in the cleanest part of the window.
+
+\paragraph{Rates.}
+I take the energy dependence from \cref{eq:signc,eq:sigcc} and fix the two overall scales by
+JUNO's own $^8$B yields, $3032$ NC and $3929$ CC events in ten years, rather than by
+evaluating $B({\rm GT}^0)$ from a shell model.  Carrying that law from the $^8$B weighting
+($3.7$--$15$~MeV) down to the reactor's ($3.7$--$9$~MeV) is a modest extrapolation, so the
+reactor rate should be read as good to a factor of order unity.  It gives $4.1$ events per
+day at $10\,\mathrm{MW}$ and $50$~m, five times the solar NC rate, and as a background to
+\eves{} it is negligible: including all of the $^{13}$C moves $\sigma(\sw)$ by one digit in
+the fifth place.  Note that the $^{13}$C count cancels exactly between the anchoring and
+the prediction, so the rate does not depend on it.
+
+As a measurement in its own right it is more interesting.  Treating the line normalisation
+as the parameter of interest, with its cross-section prior dropped and every other
+systematic standing, the reactor-driven line reaches $\mathbf{12\sigma}$ at $30\,\MWyr$
+($4.5\times10^3$ events; $7.0\sigma$ at $10\,\MWyr$, $21\sigma$ at $100\,\MWyr$).  It is
+the one place in the window where a sharp feature sits on a smooth continuum, so it is
+limited by statistics rather than by any shape systematic.
+
+\subsection{Neutrino interactions on deuterium}
+\label{sec:deuterium}
+Natural hydrogen carries $156$~ppm of deuterium, so JUNO's $1.44\times10^{33}$ free protons
+come with $2.2\times10^{29}$ deuterons, about $750$~kg of D, $2.3\%$ of the $^{13}$C count.
+Deuterium is the target one would most like to have: the neutral-current breakup
+$\nu+d\to\nu+n+p$ is a pure Gamow-Teller transition on the simplest of all nuclei, with a
+matrix element known from pionless effective field theory to about $1\%$ rather than from a
+shell model, and it is how SNO measured the total solar flux.  Two channels are open, and their thresholds are worth assembling piece by piece because the
+gap between them is what decides everything that follows.  Both must first pay the deuteron
+binding energy,
+\begin{equation}
+B_d=m_p+m_n-M_d=938.272+939.565-1875.613=2.224\ \mathrm{MeV}.
+\label{eq:bd}
+\end{equation}
+The neutral current pays nothing else, since the outgoing neutrino is massless and the
+final state is just an unbound $np$ pair.  The charged current must in addition turn a
+proton into a neutron and materialise a positron,
+\begin{align}
+\bar\nu_e+d&\to \bar\nu_e+n+p,
+&E_{\rm th}&=B_d=2.224\ \mathrm{MeV},
+\label{eq:ncd}\\
+\bar\nu_e+d&\to e^++n+n,
+&E_{\rm th}&=B_d+(m_n-m_p)+m_e=2.224+1.293+0.511=4.028\ \mathrm{MeV},
+\label{eq:ccd}
+\end{align}
+the second of which is just $2m_n+m_e-M_d$ written in a more transparent way.  Folding
+these against the reactor spectrum, the neutral current samples $71.4\%$ of the flux and
+the charged current only $14.5\%$ of it, a factor of five that the cross sections more than
+undo: the charged current is the larger of the two per neutrino, by a factor $\sim2.5$ at
+these energies, as SNO's two channels also show.
+
+As for $^{13}$C the energy dependence is derived and the two overall scales are external.
+Both channels are allowed transitions, so a lepton of energy $E_\ell$ recoils against a
+two-body continuum of relative energy $\epsilon$ whose density of states goes as
+$\sqrt\epsilon$,
+\begin{equation}
+\sigma_{\rm NC}\propto\int_0^{Q}(Q-\epsilon)^2\sqrt\epsilon\,d\epsilon\propto Q^{7/2},
+\qquad
+\sigma_{\rm CC}\propto\int_0^{Q'}p_eE_e\sqrt\epsilon\,d\epsilon,
+\label{eq:dshapes}
+\end{equation}
+with $Q=E_\nu-B_d$ and $E_e=Q'-\epsilon+m_e$, $Q'=E_\nu-4.028\,\mathrm{MeV}$.  This omits
+the $^1S_0$ final-state interaction, which enhances small $\epsilon$ in \emph{both}
+channels and so largely cancels between them.  The scales are the per-fission cross
+sections at $^{235}$U-dominated reactors, well matched to the HALEU core,
+$\sigma_{\rm CC}=1.06\times10^{-44}$ and $\sigma_{\rm NC}=5.6\times10^{-45}\,
+\mathrm{cm^2/fission}$, on which theory and the reactor measurements agree to about
+$10\%$; every number below inherits that $10\%$ and nothing worse.  The raw rates at
+$10\,\mathrm{MW}$ and $50$~m are then $0.157$ (CC) and $0.084$ (NC) events per day.
+
+The two channels then part company completely, and it is the signature rather than the rate
+that decides.  The charged current gives a prompt positron followed by \emph{two} neutron
+captures, a triple coincidence, and the two neutrons share a vertex.  The only serious
+accidental is an ordinary IBD event picking up a second neutron from another IBD, and
+requiring the second capture within $1$~m and $1$~ms of the first reduces that to
+$9\times10^{-3}$ per day against a signal of $0.157$ per day.  That is $172$ events
+per $30\,\MWyr$ at $13\sigma$, and the significance is signal-statistics limited
+rather than background limited.  Note that both signal and accidental scale with reactor
+power, so the signal-to-background is a property of the vertex cut and not of the exposure.
+The background that would need real work is cosmogenic fast neutrons, which genuinely
+produce multi-neutron events.
+
+The neutral current, by contrast, produces a lone $2.22$~MeV neutron-capture $\gamma$ with
+no prompt at all, since the proton recoil is sub-MeV and heavily quenched.  Against
+$5\times10^3$ singles per day in the surrounding $0.45$~MeV, and even with equal reactor-off
+subtraction, this reaches $0.02\sigma$.  It is inaccessible.  The channel one wants is
+precisely the one the abundance denies: a deuterated target would be needed, and doping the
+scintillator to $1\%$ D would give $10$ CC and $5$ NC events per day, while a dedicated
+one-tonne D$_2$O cell at $10$~m would give $1.1$ and $0.6$.  Neither is a modification to
+JUNO; both are separate experiments.  What the parked reactor does deliver for free is a
+respectable $\bar\nu_e d$ charged-current measurement riding on the same data as everything
+else.
+
 \subsection{Systematics}
 The \eves{}-only fit carries the following modes: a $2\%$ normalisation
-(power$\times$target$\times$efficiency); the 25-mode measured $^{235}$U shape covariance
+(power$\times$target$\times$efficiency); the \eves{} cross-section normalisation at
+$0.2\%$ (the $O(\alpha)$ radiative corrections, the only theory error left once the
+couplings are the parameters of interest); the 25-mode measured $^{235}$U shape covariance
 \cite{DayaBay:2021dqj}; $^{238}$U at $\pm15\%$; the IBD-singles normalisation at
 $\pm10\%$; solar at $\pm3\%$; energy scale, bias and resolution at $0.5/0.5/5\%$,
-coherent between the electron and positron responses; and the fuel-evolution (Pu-ingrowth)
-mode at $\pm30\%$.
+coherent between the electron and positron responses, plus a $0.2\%$ scale mode on the
+electron response alone; and the fuel-evolution (Pu-ingrowth) mode at $\pm30\%$.  The detector singles carry no normalisation prior at all: under
+\cref{eq:onoff} their level and shape are measured, and what remains is a $1\%$ coherent
+\emph{stability} residual between the on and off periods (radon drift, muon-rate
+variation).  That residual is a complete null: even a $10\%$ residual leaves
+$\sigma(\sw)$ unchanged at five digits, because the steeply-falling singles shape is
+nearly orthogonal to the coupling-induced distortion of the recoil spectrum.
 
 The joint fit stacks the IBD anchor spectrum ($1.0$--$9.0$~MeV in 50~keV bins) with the
 \eves{} spectrum, \emph{frees the flux normalisation} (a loose 10\% prior) and lets the IBD
-channel measure it.  The transfer to \eves{} is then limited by the IBD cross-section
-normalisation ($0.2\%$, from $\tau_n$ and radiative corrections
-\cite{Vogel:1999zy,Strumia:2003zx}), a zero-mean linear cross-section tilt ($0.1\%$), and
-the channel ratio $N_e/N_p\times\varepsilon$ ($0.5\%$).  Under the anchor the standard JUNO
+channel measure it.  The transfer to \eves{} is then limited by four terms: the channel
+ratio $N_e/N_p\times\varepsilon$ ($0.5\%$), the IBD cross-section normalisation ($0.2\%$,
+from $\tau_n$ and radiative corrections \cite{Vogel:1999zy,Strumia:2003zx}) with a
+zero-mean linear tilt on top ($0.1\%$), the \eves{} cross-section normalisation ($0.2\%$),
+and the residual $e^-$/$e^+$ energy-scale difference ($0.2\%$).  The last of these deserves
+a word.  Freeing the flux normalisation is what lets the anchor pin the energy response,
+and it does so only to the extent that the electron and positron scales move together;
+they are calibrated with different sources, since an electron deposits one continuous
+track and a positron its kinetic energy plus two $511$~keV quanta.  The decorrelated
+residual is therefore carried, and it costs $8\%$ of the final number.  Under the anchor the standard JUNO
 backgrounds (far reactors, geoneutrinos, $^9$Li/$^8$He, world reactors, $^{214}$Bi--Po and
 ``other'', about $45$ per day against $5.8\times10^4$ per day) enter at their release priors
 \cite{JUNO:2025gmd}, and the shared $^{235}$U shape modes act on both channels
 coherently, so the anchor constrains them in situ.
 
 \subsection{Results}
+\label{sec:results}
 \Cref{tab:sw2} decomposes $\sigma(\sw)$ at $30\,\MWyr$, and \cref{fig:sw2exp} shows the
 exposure dependence.
 
 \begin{table}[t]\centering
 \begin{tabular}{lc}\toprule
-\eves{}-only variant, $30\,\MWyr$ & $\sigma(\sw) ($\%$)$\\\midrule
-all systematics & $0.473$\\
-no flux-shape covariance & $0.214$\\
-no solar/JUNO backgrounds & $0.456$\\
-no energy scale/bias/res.\ pulls & $0.468$\\
-no fuel-evolution mode & $0.472$\\
-statistics only & $0.013$\\\midrule
-joint IBD+\eves{}, defaults ($0.2\%$ xsec, $0.5\%$ ratio) & $0.111$\\
-\quad IBD xsec $0.5\%$ (Strumia--Vissani) & $0.136$\\
-\quad channel ratio $0.2\%$ & $0.065$\\
-\quad both at best ($0.1\%$, $0.2\%$) & $0.054$\\
-\quad no $^{235}$U shape covariance & $0.106$\\
+\eves{}-only variant, $30\,\MWyr$ & $10^2\,\sigma(\sw)$\\\midrule
+all systematics & $0.504$\\
+no flux-shape covariance & $0.352$\\
+no detector singles & $0.474$\\
+no solar/JUNO backgrounds & $0.503$\\
+no energy scale/bias/res.\ pulls & $0.490$\\
+no fuel-evolution mode & $0.502$\\
+signal statistics only & $0.011$\\
+\quad with the measured backgrounds & $0.030$\\\midrule
+joint IBD+\eves{}, defaults & $0.137$\\
+\quad IBD xsec $0.5\%$ (Strumia--Vissani) & $0.163$\\
+\quad channel ratio $0.2\%$ & $0.103$\\
+\quad $e^-/e^+$ relative scale $0.1\%$ & $0.130$\\
+\quad all four transfer terms at best & $0.080$\\
+\quad no $^{235}$U shape covariance & $0.133$\\
+\quad no detector singles & $0.120$\\
+\quad $2\%$-length reactor-off run ($r=0.02$) & $0.199$\\
+\quad no reactor-off run, singles shape modelled & $0.135$\\
 \bottomrule\end{tabular}
-\caption{Precision on $\sw$ in percentage for $30\,\MWyr$ near reactor exposure ($\approx3.3$ calendar years with about $90\%$ uptime).}
+\caption{Precision on $\sw$ for $30\,\MWyr$ near-reactor exposure ($\approx3.3$ calendar
+years with about $90\%$ uptime).  Entries are $10^2$ times the \emph{absolute} error, so
+$0.137$ means $\sigma(\sw)=1.4\times10^{-3}$, or $0.6\%$ of $\sw$ itself.  ``All four
+transfer terms at best'' is IBD xsec $0.1\%$, channel ratio $0.2\%$, \eves{} xsec $0.1\%$
+and relative scale $0.1\%$.}
 \label{tab:sw2}
 \end{table}
 
 \begin{figure}[t]\centering
 \includegraphics[width=\textwidth]{nb5_sigma_sw2_vs_exposure}
 \caption{$\sigma(\sw)$ versus delivered exposure.  The \eves{}-only fit saturates on the
-measured flux-shape covariance; the IBD-anchored fit keeps converting statistics into
-precision.}
+measured flux-shape covariance; the IBD-anchored fit converts statistics into precision
+until it reaches its own floor, the transfer budget.}
 \label{fig:sw2exp}
 \end{figure}
 
-Two structural conclusions come out of this.  First, \emph{the \eves{}-only measurement is
+Three structural conclusions come out of this.  First, \emph{the \eves{}-only measurement is
 limited by the flux shape}: the recoil shape breaks the normalisation degeneracy far better
-than the naive rate argument ($|d\ln R/d\sw|\approx4$) suggests, but the $2$--$4\%$
+than the naive rate argument ($|d\ln R/d\sw|=4.75$) suggests, but the $2$--$4\%$
 correlated bin uncertainties of the measured $^{235}$U spectrum imitate the coupling-induced
-shape change and saturate the precision at $\sigma(\sw)\approx0.47\%$ regardless of exposure.
-Second, \emph{the joint fit removes that wall}: with the normalisation freed and measured by
-the anchor, the $^{235}$U shape covariance \emph{and} the energy-scale pulls become exact
-nulls (the $7\times10^7$-event anchor pins both), and what remains is set by the two
-transfer terms plus, at the $+6\%$ and $+7\%$ level, the fuel-evolution mode and the
-solar/JUNO backgrounds.  The result, $\sigma(\sw)=0.11\%$ ($1.1\times10^{-3}$) at
-$30\,\MWyr$ and $0.054\%$ at the plausible best of the transfer inputs, is a
-$\sim0.25\%$-of-itself low-energy weak mixing angle, competitive with the best existing
-determinations \cite{Erler:2004in}.  \Cref{fig:gvga} shows the same anchoring in the
-$(g_V,g_A)$ plane: $\sigma(g_V)=0.0027$ and $\sigma(g_A)=0.0033$ at $30\,\MWyr$.
+shape change and saturate the precision at $\sigma(\sw)\approx5\times10^{-3}$ regardless of
+exposure.  Second, \emph{the joint fit removes that wall}: with the normalisation freed and
+measured by the anchor, the $^{235}$U shape covariance and the coherent energy pulls become
+near-nulls (the $7\times10^7$-event anchor pins both), and what remains is the transfer
+budget, then the detector singles, then the fuel-evolution mode and the solar/JUNO
+backgrounds.  The result, $\sigma(\sw)=1.4\times10^{-3}$ at $30\,\MWyr$ and
+$8.0\times10^{-4}$ at the plausible best of the transfer inputs, is a
+$\sim0.6\%$-of-itself low-energy weak mixing angle, competitive with the best existing
+determinations \cite{Erler:2004in}.
+
+Third, and this is worth stating plainly because it says what the measurement actually
+requires: \emph{the joint number is a rate ratio and almost nothing else}.  Adding the four
+transfer priors in quadrature and dividing by $|d\ln R/d\sw|$ gives
+$\sqrt{0.5^2+0.2^2+0.2^2+0.2^2}\%/4.75=1.3\times10^{-3}$, which is $92\%$ of the full
+answer; the spectral information contributes the rest.  The exposure dependence of
+\cref{fig:sw2exp} flattens for the same reason.  So the claim of this section is
+conditional in a specific and testable way: \emph{if} $N_e/N_p\times\varepsilon$ can be
+established to $0.5\%$ and $\sigma_{\rm IBD}$ to $0.2\%$, the parked reactor delivers
+$\sigma(\sw)=1.4\times10^{-3}$.  Establishing the first of those is a scintillator-assay
+and efficiency question, not a neutrino one, and it is where the effort belongs.
+
+\Cref{fig:gvga} shows the same anchoring in the $(g_V,g_A)$ plane: $\sigma(g_V)=0.0038$ and
+$\sigma(g_A)=0.0072$ at $30\,\MWyr$, with principal semi-axes $0.0026\times0.0077$.  The
+singles cost $g_A$ far more than $g_V$, as they must: $g_A$ is fixed by the low-recoil
+shape, which is exactly where they live.
 
 \Cref{fig:gvga_land} places this in the existing landscape.  Electron-flavour experiments
 see the CC amplitude too, so their cross sections depend on $(g_V+1,\,g_A+1)$ and constrain
@@ -326,9 +882,10 @@ $\sigma/\sigma_{\rm SM}=0.82\pm0.28$; CHARM~II \cite{CHARM-II:1990dvf}, $1.58\pm
 constrains the $\nu_\mu$--\emph{muon} couplings \cite{Altmannshofer:2014pba} rather than
 $\nu$--$e$, so I do not draw it.  Reactor $\bar\nu_ee$ data combined give
 $\sw=0.252\pm0.030$ \cite{Canas:2016vxp}.  Our measurement is $\bar\nu_e$: it lands on
-TEXONO's band and shrinks it by two orders of magnitude, and its joint 30~MW\,yr ellipse
-(semi-axes $0.004\times0.002$) sits inside the CHARM~II and world-average circles,
-$5$--$8\times$ tighter in each direction and from a different flavour.  All contours are
+TEXONO's band and shrinks it by nearly two orders of magnitude, and its joint 30~MW\,yr
+ellipse sits inside the CHARM~II and world-average circles, $4.5\times$ tighter in $g_V$
+and $2.4\times$ in $g_A$ (and $2.2$--$6.7\times$ along its principal axes), from a
+different flavour.  All contours are
 centred on the PDG world-average point.
 
 \begin{figure}[t]\centering
@@ -350,10 +907,33 @@ world average, with this work's 30~MW\,yr joint region at the PDG point.}
 \label{sec:sterile}
 
 \subsection{The idea}
-For a point source at distance $D$ from the centre of a fiducial sphere of radius $R$,
-vertices span $L\in[D-R,D+R]$ with the analytic density
-$dN/dL\propto2\pi L^2\,[1-(L^2+D^2-R^2)/(2LD)]/L^2$.  At $D=50$~m the baseline spans
-$33$--$67$~m, a factor of two.  For $\dm{41}\sim0.1$--$10\,\mathrm{eV^2}$ the oscillation
+Start from the geometry, because it is the whole reason this works.  Put a point source at
+distance $D$ from the centre of a fiducial sphere of radius $R$ and ask how much target
+sits at baseline $L$.  The locus of points at fixed $L$ from the source is a sphere, and the
+part of it inside the detector is a spherical cap.  With $\alpha$ the polar angle measured
+from the source-to-centre axis, the cap edge is where the two spheres intersect, given by
+the cosine rule as
+\begin{equation}
+\cos\alpha_{\max}(L)=\frac{L^{2}+D^{2}-R^{2}}{2LD},
+\label{eq:capangle}
+\end{equation}
+so the cap area is $2\pi L^{2}\big[1-\cos\alpha_{\max}\big]$ and the target volume between
+$L$ and $L+dL$ is
+\begin{equation}
+A(L)=2\pi L^{2}\left[1-\frac{L^{2}+D^{2}-R^{2}}{2LD}\right],
+\qquad |D-R|\le L\le D+R .
+\label{eq:AL}
+\end{equation}
+The event density then carries the usual inverse-square dilution,
+\begin{equation}
+\frac{dN}{dL}\propto\frac{A(L)}{L^{2}}
+=2\pi\left[1-\frac{L^{2}+D^{2}-R^{2}}{2LD}\right],
+\label{eq:dNdL}
+\end{equation}
+which is exact, contains no free parameter, and is worth pausing on: the $L^{2}$ of the cap
+area cancels the $1/L^{2}$ of the flux, leaving a distribution fixed entirely by $D$ and
+$R$.  Nothing about the reactor enters it.  At $D=50$~m and $R=16.5$~m the baseline spans
+$33$ to $67$~m, a factor of two.  For $\dm{41}\sim0.1$--$10\,\mathrm{eV^2}$ the oscillation
 length at reactor energies is metres to tens of metres, so the disappearance pattern
 \emph{wiggles across the detector} (\cref{fig:wiggle_map,fig:wiggle_slices}).  Binning
 events in reconstructed vertex baseline $L$ makes JUNO a many-baseline experiment in one
@@ -384,20 +964,77 @@ P_{ee}=1-(1-s_{14})^2\,(1-P^{3\nu}_{ee})-4s_{14}(1-s_{14})\sum_{i=1}^{3}|U_{ei}|
 with the exact three-flavour $P^{3\nu}_{ee}$ in the $\dmee$ parameterisation
 \cite{Minakata:2006gq} and $\Delta_{i4}=1.267\,(m_4^2-m_i^2)L/E$
 ($\dm{31}=\dmee+s_{12}^2\dm{21}$).  I validated it against a brute-force PMNS-amplitude
-computation to $8.5\times10^{-6}$.  At 50~m it reduces to $1-\st{14}\sin^2\Delta_{41}$,
+computation to $8.5\times10^{-6}$.  Expanding the $(1-s_{14})^2$ prefactor,
+$1-(1-s_{14})^2=\tfrac12\st{14}+O(\st{14}^2)$, so the prediction is exactly affine in
+$\st{14}$ to first order with the template
+\begin{equation}
+W=\sum_{i}|U_{ei}|^2_{3\nu}\sin^2\Delta_{i4}-\tfrac12\big(1-P^{3\nu}_{ee}\big),
+\label{eq:wtemplate}
+\end{equation}
+the second term being the piece of the ordinary $\theta_{13}$ disappearance that the
+sterile mixing switches off.  It is $6\times10^{-4}$ of the first at 50~m and $\sim3\%$ at
+$1.4$~km, and it carries no $L$-wiggle.  At 50~m the whole expression reduces to
+$1-\st{14}\sin^2\Delta_{41}$,
 while at $1.4$~km, where $\Delta_{31}\approx1$~rad, the three sterile phases separate and
 the null hypothesis is the $\theta_{13}$-oscillated spectrum.  IBD (CC) and \eves{}
-(CC+NC) deplete identically, since an oscillated $\bar\nu_e$ is sterile.
+(CC+NC) deplete identically, since an oscillated $\bar\nu_e$ is sterile; the
+$\bar\nu_{\mu,\tau}$ that the standard oscillation produces still scatters by NC and is
+carried with its own cross section, so the \eves{} null is exact at every standoff.
 
-Two effects smear the true baseline at fixed reconstructed vertex: the finite core (a
-uniform ball of radius $a$ has line-of-sight variance $a^2/5$) and the vertex resolution.
-The oscillating term damps analytically,
-$\langle\sin^2kL\rangle=\tfrac12[1-\cos(2kL)\,e^{-2k^2\sigma_L^2}]$ with
-$\sigma_L^2=\sigma_1^2/E+a^2/5$ and $k=1.267\,\dm{}/E$; bin averaging is exact via
-sub-nodes.  The prediction is linear in $\st{14}$, so against the Asimov null
-$\Delta\chi^2=\sin^42\theta_{14}\,Q(\dm{})$ with $Q=W^TC^{-1}W$ for one wiggle template
-$W$ per $\dm{}$, and the entire exclusion curve is analytic (95\%~CL at
-$\Delta\chi^2=5.99$).
+Two effects smear the true baseline at fixed reconstructed vertex, and both damp the
+wiggle in the same way, so it is worth deriving the damping once.  Write the oscillating
+factor as $\sin^{2}kL$ with $k=1.267\,\dm{}/E$ in units of $\mathrm{eV^{2}}$, MeV and
+metres, and suppose the true $L$ is Gaussian-distributed about the reconstructed value with
+variance $\sigma_L^{2}$.  Using $\sin^{2}kL=\tfrac12[1-\cos2kL]$ and the standard Gaussian
+average of a cosine, $\langle\cos2kL\rangle=\cos(2k\bar L)\,e^{-2k^{2}\sigma_L^{2}}$,
+\begin{equation}
+\big\langle\sin^{2}kL\big\rangle
+=\tfrac12\Big[1-\cos(2k\bar L)\,e^{-2k^{2}\sigma_L^{2}}\Big].
+\label{eq:damping}
+\end{equation}
+The mean survives untouched and only the oscillating part is attenuated, by
+$e^{-2k^{2}\sigma_L^{2}}$.  Counts are therefore conserved by the smearing, which is why
+the null spectra are unaffected by it and only the signal template is damped.
+
+The two contributions to $\sigma_L^{2}$ add in quadrature.  A finite core of radius $a$,
+uniformly emitting, has a line-of-sight coordinate distributed as the projection of a
+uniform ball, whose variance is
+$\langle z^{2}\rangle=\tfrac{1}{V}\!\int z^{2}\,d^{3}r=a^{2}/5$.  The vertex resolution
+contributes $\sigma_1^{2}/E$ for a JUNO-like $\sigma_{\rm vtx}=\sigma_1/\sqrt{E}$.  Hence
+\begin{equation}
+\sigma_L^{2}=\frac{\sigma_1^{2}}{E}+\frac{a^{2}}{5},
+\label{eq:sigmaL}
+\end{equation}
+and since the exponent goes as $k^{2}\propto(\dm{}/E)^{2}$, the damping switches on
+quadratically in $\dm{}$.  This is what terminates the reach at high $\dm{}$, and
+\cref{eq:sigmaL} shows immediately which term does it: the core radius enters with no
+energy dependence, so once $a^{2}/5$ exceeds $\sigma_1^{2}/E$ the source, not the detector,
+sets the wall.  Averaging over the finite width of an $L$ bin is done exactly with
+sub-nodes rather than analytically.
+
+The statistics then simplify remarkably.  The sterile term in $P_{ee}$ enters multiplied by
+$\st{14}$ and nothing else, so the predicted spectrum is affine in that one parameter,
+\begin{equation}
+\bm\mu(\st{14})=\bm\mu_0-\st{14}\,\bm W(\dm{}),
+\label{eq:affine}
+\end{equation}
+where $\bm\mu_0$ is the three-flavour null and $\bm W$ is a single wiggle template per
+$\dm{}$, built once.  Putting \cref{eq:affine} into the Asimov quadratic form
+\cref{eq:fisher} with $\bm\theta_0$ the null,
+\begin{equation}
+\Delta\chi^{2}(\dm{},\st{14})=\st{14}^{2}\;\bm W^{T}C^{-1}\bm W
+\;\equiv\;\st{14}^{2}\,Q(\dm{}),
+\label{eq:sterilechi2}
+\end{equation}
+so a single number $Q$ per $\dm{}$ carries the entire sensitivity and the exclusion curve
+is closed-form,
+\begin{equation}
+\st{14}^{\rm excl}(\dm{})=\sqrt{\frac{\Delta\chi^{2}_{\rm crit}}{Q(\dm{})}},
+\qquad \Delta\chi^{2}_{\rm crit}=5.99\ (95\%\ \mathrm{CL},\ 2\ \mathrm{dof}).
+\label{eq:sterilelimit}
+\end{equation}
+No scan over $\st{14}$ is needed at all, which is what makes the four-standoff, many-mode
+analysis of \cref{fig:landscape} tractable.
 
 \subsection{Why the analysis is shape-only, and what that costs}
 The Daya Bay $^{235}$U spectrum was \emph{measured} at $\sim500$~m: a sterile with
@@ -411,10 +1048,19 @@ $L$-direction wiggle structure at fixed $E$ can then carry sterile information, 
 carries essentially all of it: relative to a Daya-Bay-prior analysis the limits move by
 less than $0.5\%$ across $0.03$--$3\,\mathrm{eV^2}$, and by $11\%$ only at the
 $10\,\mathrm{eV^2}$ wall.  The Daya Bay spectrum serves only as a shape template for event
-rates.  The remaining nuisances are the detector response non-uniformity across the volume,
-modelled as a Gaussian-correlated field over $L$ ($0.5\%$ amplitude, $1.5$~m correlation
-length, the one systematic in the wiggle direction), the fuel evolution ($\pm30\%$, a null),
-and the IBD/\eves{} ratio ($0.5\%$).  The backgrounds of \cref{sec:sm} (IBD singles, solar,
+rates.  The remaining nuisances are the detector response non-uniformities across the volume, the
+fuel evolution ($\pm30\%$, a null), and the IBD/\eves{} ratio ($0.5\%$).  The
+non-uniformities are the systematics that live in the wiggle direction and both are
+modelled as Gaussian-correlated fields over $L$ with a $1.5$~m correlation length, so that
+finer binning cannot manufacture high-frequency freedom.  One is an \emph{efficiency}
+field ($0.5\%$), which is energy independent and is therefore broken by the
+$E$-dependence of the oscillation phase.  The other is a position-dependent \emph{energy
+scale} ($0.2\%$) --- the light collection against radius --- which does distort the
+spectrum in $E$ as a function of $L$, the same joint direction the signal lives in, and is
+the more dangerous of the two.  It is still not the limiter: the field spans only
+$\sim20$ correlated modes across a $33$~m span, which the fit projects out, so its cost
+saturates and $0.2\%$ and $1\%$ give the same limit to three digits.  Together the two
+fields cost under $1\%$ of the reach.  The backgrounds of \cref{sec:sm} (IBD singles, solar,
 and the standard JUNO components distributed as volume in $L$) are included and shift the
 limits by less than $0.1\%$: being smooth in both $L$ and $E$, they cannot make wiggles.
 
@@ -438,58 +1084,79 @@ the reactor short-baseline exclusions (DANSS, PROSPECT, STEREO, RENO+NEOS; grey)
 \begin{figure}[t]\centering
 \includegraphics[width=\textwidth]{nb6_lbinned_vs_integrated}
 \caption{The vertex-binned search against the same data analysed as a single integrated
-baseline, and the IBD-only variant.}
+baseline, and the IBD-only variant.  Two integrated curves are shown: with the same free
+$E$-shape as the vertex-binned fit, which leaves it no handle at all, and with the Daya
+Bay shape covariance imposed as a prior.}
 \label{fig:lbin}
 \end{figure}
 \begin{figure}[t]\centering
 \includegraphics[width=\textwidth]{nb6_high_dm2_wall}
 \caption{The high-$\dm{}$ wall dissected: idealised point source and perfect vertexing,
-then the vertex resolution, then finite cores of $0.5$ and $1.5$~m.}
+then the vertex resolution, then finite cores of $0.5$ and $1.5$~m.  The dotted vertical
+line is $\st{14}=0.1$.  Every configuration loses sensitivity above its wall rather than
+saturating, because a fully averaged depletion is degenerate with the free normalisation.}
 \label{fig:wall}
 \end{figure}
 
 \begin{table}[t]\centering
-\begin{tabular}{lcccc}\toprule
-& $D=50$~m & 100~m & 500~m & 1400~m\\\midrule
-IBD rate [day$^{-1}$] & $6.1\times10^4$ & $1.5\times10^4$ & $590$ & $71$\\
-baseline span [m] & $33$--$67$ & $84$--$117$ & $484$--$517$ & $1384$--$1417$\\
-best $\st{14}$ ($95\%$) & $\approx1\times10^{-3}$ & $\approx2\times10^{-3}$ &
-$\approx2\times10^{-2}$ & $\approx5\times10^{-2}$\\
-at $\dm{41}$ [eV$^2$] & $0.3$--$1$ & $0.1$--$0.5$ & $0.05$--$0.1$ & $0.01$--$0.03$\\
+\begin{tabular}{lccccc}\toprule
+& $D=50$~m & 100~m & 200~m & 500~m & 1400~m\\\midrule
+IBD rate [day$^{-1}$] & $6.1\times10^4$ & $1.5\times10^4$ & $3.7\times10^3$ & $590$ & $71$\\
+baseline span [m] & $34$--$66$ & $84$--$116$ & $184$--$216$ & $484$--$516$ & $1384$--$1416$\\
+best $\st{14}$ ($95\%$) & $9.5\times10^{-4}$ & $2.1\times10^{-3}$ & $5.0\times10^{-3}$ &
+$2.2\times10^{-2}$ & $1.8\times10^{-1}$\\
+at $\dm{41}$ [eV$^2$] & $0.50$ & $0.38$ & $0.29$ & $0.16$ & $0.065$\\
+within $30\%$ over & $0.20$--$1.5$ & $0.17$--$0.87$ & $0.14$--$0.55$ & $0.08$--$0.30$ &
+$0.03$--$0.12$\\
 \bottomrule\end{tabular}
 \caption{Sterile reach per standoff, $27\,\MWyr$ each.  Each standoff owns roughly a decade
 of $\dm{}$ (the reach follows the accumulated phase $\Delta_{41}\propto\dm{}D/E$) while
-the rate falls as $1/D^2$.}
+the rate falls as $1/D^2$, so the compact standoffs carry the sensitivity and the
+kilometre one buys only reach in $\dm{}$.}
 \label{tab:sterile}
 \end{table}
 
 The findings, in order of importance:
 \begin{itemize}\itemsep2pt
-\item The vertex-binned search reaches $\st{14}\approx10^{-3}$ over $0.2$--$3\,\mathrm{eV^2}$
-at 50~m, an order of magnitude beyond the reactor short-baseline experiments and covering
-the entire Gallium region.  It beats the integrated analysis by a $\dm{}$-dependent factor,
-about $5$ at the integrated analysis's one sweet spot near $1\,\mathrm{eV^2}$ (where its
-surviving $E$-wiggles resist the flux covariance) and up to $\sim70$ elsewhere, and unlike
-it needs no flux prior at all.  The integrated analysis's reach hinges on an accidental
-alignment between oscillation shape and flux uncertainty; the $L$-binned one is uniformly
-robust.
+\item The vertex-binned search reaches $\st{14}=9.5\times10^{-4}$ at
+$\dm{}=0.5\,\mathrm{eV^2}$, stays below $1.1\times10^{-3}$ over
+$0.26$--$1.1\,\mathrm{eV^2}$ and below $2\times10^{-3}$ from $0.13$ to
+$2.7\,\mathrm{eV^2}$: an order of magnitude beyond
+the reactor short-baseline experiments, and covering the Gallium $2\sigma$ islands (which
+span $0.8$--$10\,\mathrm{eV^2}$) in full.
+\item \emph{An integrated analysis of the same data, with the same free flux shape, has no
+sensitivity at all.}  One free mode per $E$ bin and a single $L$ bin leaves nothing to fit,
+and its curve sits at $\st{14}\approx0.5$--$0.8$ over the whole range where the
+$L$-binned search has reach, rising further at the edges (\cref{fig:lbin}).  The only integrated analysis with any reach is one that imposes the
+Daya Bay flux shape --- the measurement that would itself have carried the depletion --- and
+the vertex-binned search beats \emph{that} by $\sim3$--$4$ at its sweet spot near
+$1$--$3\,\mathrm{eV^2}$, where its surviving $E$-wiggles resist the flux covariance, and by
+up to $\sim90$ elsewhere.  Above $\sim15\,\mathrm{eV^2}$ the ordering reverses, since the
+$L$-wiggle is smeared out while the $E$-wiggle is not.  So the finite detector is not an
+improvement on the conventional analysis; it is what makes a prior-free search possible at
+all.
 \item Each standoff owns roughly a decade of $\dm{}$ (\cref{tab:sterile}).  The compact
-standoffs are where the sensitivity is, and the kilometre ones open $\dm{}<0.1\,\mathrm{eV^2}$
-at the few-percent level.  The full 3+1 formula matters at the few-percent level in the
-limit at $1.4$~km for $\dm{}\lesssim0.1\,\mathrm{eV^2}$ (the $\Delta_{34}$ term dilutes the
-wiggle) and is identically null at 50~m.
-\item The high-$\dm{}$ wall is the \emph{core size}: a $0.5$~m core reaches
-$\sim10\,\mathrm{eV^2}$ and a $1.5$~m core $\sim4$.  JUNO's vertexing is never the
-bottleneck; even for a point source the \emph{energy} resolution, through the $L/E$ phase
-($\sigma_\phi\propto\dm{}L\sigma_E/E^2$), ends the search by $20$--$30\,\mathrm{eV^2}$,
-decaying in stages with the high-$E$ tail surviving longest.  Above the wall every
-configuration saturates at the rate-only floor $\st{14}\approx0.09$.  Compactness is as
-valuable as power.
-\item The honest limiter in $\st{14}$ is the response uniformity across the volume; the
-statistics floor lies a factor $\sim2$ below the $0.5\%$ assumption, and $0.1\%$ would gain
-another factor of $2$--$3$.  \eves{} rides along but adds little: without $E_\nu$
-reconstruction its wiggles wash out (the true-$T$ ratio varies by $0.027$ peak-to-peak
-against $0.10$ in the input).
+standoffs are where the sensitivity is: $500$~m reaches $2\times10^{-2}$ and $1400$~m only
+$1.8\times10^{-1}$, the $1/D^2$ rate cost outrunning the extra phase.  The full 3+1
+formula matters at the few-percent level in the limit at $1.4$~km for
+$\dm{}\lesssim0.1\,\mathrm{eV^2}$ --- the $\Delta_{34}$ term dilutes the wiggle, and the
+$(1-s_{14})^2$ term of \cref{eq:wtemplate} adds $\sim3\%$ --- and is identically null at
+50~m.
+\item The high-$\dm{}$ wall is the \emph{energy} resolution, through the $L/E$ phase
+($\sigma_\phi\propto\dm{}L\sigma_E/E^2$).  Quoting the $\dm{}$ at which the reach crosses
+$\st{14}=0.1$: an idealised point source with perfect vertexing gives up at
+$14\,\mathrm{eV^2}$, JUNO's vertexing costs almost nothing on top of that ($13$), and the
+core size is the secondary effect --- $12\,\mathrm{eV^2}$ for a $0.5$~m core, $8$ for
+$1.5$~m.  Compactness helps, but the energy resolution sets the ceiling.  Above the wall
+every configuration loses sensitivity entirely, as it must: a fully averaged depletion is
+$L$- and $E$-independent and is therefore exactly the normalisation this analysis leaves
+free.
+\item What limits the reach is statistics and the shape-only construction, not the
+detector.  Freeing the reactor $E$-shape costs a factor $2.4$ against a pure-statistics
+fit --- that is the price of not using the Daya Bay measurement, and it is worth paying ---
+while the two response-uniformity fields together cost under $1\%$.  \eves{} rides along
+but adds little: without $E_\nu$ reconstruction its wiggles wash out (the true-$T$ ratio
+varies by $0.027$ peak-to-peak against $0.10$ in the input).
 \end{itemize}
 
 %======================================================================
@@ -674,18 +1341,27 @@ core, the neglect of ALP attenuation in the shielding, and the schematic triangl
 The three studies share a lesson about what a parked reactor's \emph{size and proximity}
 do for a 20~kt detector.  For the SM couplings the win is the IBD anchor: $20\times$ the
 \eves{} statistics with the \emph{same} flux, cancelling normalisation, flux shape and
-energy response against the $0.2\%$ IBD cross section.  For sterile oscillations the win is
+energy response against a transfer budget of a few tenths of a percent.  For sterile oscillations the win is
 the detector's finite size, which converts the oscillation into an $L$-direction
 observable that no source systematic can mimic, and which crucially allows a shape-only
 analysis independent of the Daya Bay measurement that would otherwise carry the signal.  For
 ALPs the win is the decay volume: an $855\,\mathrm{m^2}$ face and a 22~m chord watching a
 $5\times10^{18}\,\gamma/\mathrm{s}$ source.
 
-The stated caveats are real.  Radioactivity and cosmogenic singles are unmodelled in the
-\eves{} and ALP windows (they are severe below $\sim3$~MeV and would enter the ALP reach as
-$N_b^{1/8}$).  The reactor spectrum is undefined below the IBD threshold.  The response
-uniformity ($0.5\%$ over the volume) is the assumed limiter of the sterile search and should
-be replaced by JUNO's calibration numbers.  A companion feasibility estimate (notebook 8)
+The stated caveats are real.  The detector singles are subtracted with reactor-off
+running (\cref{sec:singles}), but their spectral shape is a component model
+rather than a transport simulation and the cosmogenic rates are depth-scaled estimates;
+what protects the result is that it depends on them only through $\sqrt{B}$.  They are
+still unmodelled in the ALP window, where they would enter the reach as $N_b^{1/8}$ and
+cost a few percent.  The reactor spectrum is undefined below the IBD threshold, which is
+where $48\%$ of the \eves{} window rate sits; that costs the answer nothing, but it means
+the quoted \eves{} rate is a lower bound.  The transfer budget of \cref{sec:sm} is
+essentially the whole of the weak-mixing-angle result, and its leading term ---
+$N_e/N_p$ times the relative selection efficiency, assumed to $0.5\%$ --- is not a neutrino
+measurement but a scintillator-composition one, which is where the effort belongs.  The two
+response-uniformity fields of the sterile search ($0.5\%$ efficiency and $0.2\%$ energy
+scale over the volume) are assumptions that should be replaced by JUNO's calibration
+numbers, though that search turns out not to be limited by them.  A companion feasibility estimate (notebook 8)
 finds that the reactor's own neutron and gamma leakage require a research-reactor-class
 shield ($\sim6$~m water-equivalent, or $\sim2$~m steel plus a sub-metre high-$Z$ collar, on
 top of JUNO's 4~m of pool water) for the near-reactor programme not to spoil single-hit
@@ -708,8 +1384,11 @@ $0.25$~MeV over $E_\nu\in[1.8,\,8.0]$~MeV, for three spectra ($^{235}$U, $^{239}
 the ``Total'', their cycle-averaged mixture at fission fractions
 $0.564:0.076:0.304:0.056$), with a $75\times75$ covariance $V$ over the stacked
 $[\,^{235}\mathrm{U},\,^{239}\mathrm{Pu},\,\mathrm{Total}\,]$ vector.  The near-reactor
-studies of this report use the $^{235}$U and $^{239}$Pu yields directly with the
-$50\times50$ block; the standard JUNO analysis (below) uses the Total.
+studies of this report use the $^{235}$U yields with the $25\times25$ block, which is the
+only measured shape uncertainty they carry: the $^{239}$Pu component is $6.3\%$ of fissions
+at mid-cycle and $12.5\%$ at end of cycle, and its shape freedom is represented by the
+$\pm30\%$ fuel-evolution mode of \cref{eq:evomode} rather than by its own covariance block.
+The standard JUNO analysis (below) uses the Total.
 
 \Cref{fig:dyb_iso} shows the measured $^{235}$U and $^{239}$Pu yields with their released
 $1\sigma$ uncertainties (the diagonal of $V$; the last bin spans $7.8$--$9.5$~MeV),
@@ -790,11 +1469,10 @@ S(E)\;\to\;S(E)\Big[1+\sum_k\xi_k\,\frac{\sum_ny^{(k)}_n\delta_n(E)}{\sum_ny^0_n
 \end{equation}
 which is exact to first order and keeps the pull penalty diagonal.  In the near-reactor
 modules the same construction is applied to the relative covariance
-$V_{ij}/(\Phi^0_i\Phi^0_j)$ of the $^{235}$U block (and, in \cref{sec:sm}, jointly to the
-$75\times75$ matrix so that a mode distorts the $^{235}$U, $^{239}$Pu and Total spectra
-\emph{coherently}, since the far and near fluxes are correlated because they are anchored
-to the same measurement); the modes are then interpolated linearly in $E$ and enter the
-Asimov covariance $C=\mathrm{diag}(\mu)+\sum_kv_kv_k^T$ as $v_k=t\,\partial\mu/\partial\xi_k$.
+$V_{ij}/(\Phi^0_i\Phi^0_j)$ of the $^{235}$U block, and in the joint fit of \cref{sec:sm}
+each of the 25 modes acts on the IBD anchor and the \eves{} spectrum \emph{coherently},
+which is what lets the anchor measure it away; the modes are then interpolated linearly in
+$E$ and enter the Asimov covariance $C=\mathrm{diag}(\mu)+\sum_kv_kv_k^T$ as $v_k=t\,\partial\mu/\partial\xi_k$.
 Modes with eigenvalue below $10^{-10}$ of the largest are dropped.  In the sterile analysis
 of \cref{sec:sterile} this prior is deliberately \emph{not} used, and the flux shape and
 normalisation are left free, for the reason explained there.

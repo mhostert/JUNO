@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{42}%
+\begin{thebibliography}{44}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -140,6 +140,13 @@
   {[Erratum: Eur.Phys.J.C 73, 2501 (2013)]},\ \Eprint
   {https://arxiv.org/abs/1007.1727} {arXiv:1007.1727 [physics.data-an]}
   \BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Adam}\ \emph {et~al.}(2026)\citenamefont {Adam} \emph
+  {et~al.}}]{JUNO:2026ixk}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
+  {Adam}} \emph {et~al.} (\bibinfo {collaboration} {JUNO}),\ }\href@noop {} {\
+  (\bibinfo {year} {2026})},\ \Eprint {https://arxiv.org/abs/2607.17509}
+  {arXiv:2607.17509 [physics.ins-det]} \BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Erler}\ and\ \citenamefont
   {Ramsey-Musolf}(2005)}]{Erler:2004in}%
   \BibitemOpen
@@ -204,6 +211,13 @@
   {pages} {202} (\bibinfo {year} {2017})},\ \Eprint
   {https://arxiv.org/abs/1611.09867} {arXiv:1611.09867 [astro-ph.SR]}
   \BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Gavrikov}(2025)}]{Gavrikov:2025rlg}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Gavrikov}} (\bibinfo {collaboration} {JUNO}),\ }\href
+  {https://doi.org/10.22323/1.501.1041} {\bibfield  {journal} {\bibinfo
+  {journal} {PoS}\ }\textbf {\bibinfo {volume} {ICRC2025}},\ \bibinfo {pages}
+  {1041} (\bibinfo {year} {2025})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Strumia}\ and\ \citenamefont
   {Vissani}(2003)}]{Strumia:2003zx}%
   \BibitemOpen

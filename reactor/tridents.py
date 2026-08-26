@@ -85,11 +85,14 @@ def sigma_trident_proton(e_mev):
     return _interp_loglog(e_mev, e_tab, pel)
 
 
-#: LAB stoichiometry: C6H5-CnH2n+1 with n ~ 12 -> C18H30, i.e. CH_1.67 per carbon.
-#: This matches the repository's N_e = 4.67 N_p (6 + 1.67 electrons per 1.67 free
-#: protons) and its 88/12 C/H mass fractions.
-H_PER_C = 30.0 / 18.0
-E_PER_C = 6.0 + H_PER_C          # electrons per "CH_1.67 unit"
+#: LAB stoichiometry, from the LS mass fractions in :mod:`reactor.constants`:
+#: H/C = 1.63 by number, i.e. 6 + 1.63 electrons per 1.63 free protons, the same
+#: N_e = 4.689 N_p that sets the EvES target count.
+from .constants import ELECTRONS_PER_FREE_PROTON, HYDROGEN_PER_CARBON  # noqa: E402
+
+H_PER_C = HYDROGEN_PER_CARBON
+E_PER_C = 6.0 + H_PER_C          # electrons per "CH_1.63 unit"
+assert abs(E_PER_C / H_PER_C - ELECTRONS_PER_FREE_PROTON) < 1e-9
 
 
 def sigma_trident_per_ch_unit(e_mev):
